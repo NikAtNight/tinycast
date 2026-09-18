@@ -1,0 +1,7 @@
+{
+  "isLast": true,
+  "issues": [
+    {"id":"10001","key":"SXCL-42","fields":{"summary":"Fix launcher focus","status":{"name":"In Progress"},"project":{"key":"SXCL"},"updated":"2026-09-18T12:00:00.000+0000"}},
+    {"id":"10002","key":"SXCL-43","fields":{"summary":"Review keyboard flow","status":{"name":"To Do"},"project":{"key":"SXCL"},"updated":"2026-09-18T12:30:00.123+0530"}}
+  ]
+}

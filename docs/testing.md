@@ -81,6 +81,7 @@ If a change touches anything in the right column, the harness on the left is man
 
 | Harness | Guards |
 | --- | --- |
+| `inbox-test` | `Inbox/Model/`: GitHub and Jira decoding, notification matching, local read markers, filtering and preferences |
 | `fuzz-test` | `Launcher/Model/SearchRelevance.swift`, `EntryNaming.swift`, `ScriptRomanization.swift`, `LauncherOrder.swift` |
 | `corpus-test` | the launcher's ranking, over a dense synthetic index — **a new complaint is a new case in `Tests/launcher-corpus/corpus.json`** |
 | `file-search-test` | `FileSearch/Model/`, plus the shared `FuzzyMatch` scorer |

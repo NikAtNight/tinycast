@@ -545,6 +545,8 @@ run installed-ai-test     Tinycast/Features/AI/Model/*.swift \
                           Tinycast/Features/AI/Service/InstalledCLIProvider.swift \
                           Tinycast/Features/AI/Service/InstalledAIManager.swift
 
+run inbox-test Tinycast/Features/Inbox/Model/*.swift
+
 if [ "$emit_db" -eq 1 ]; then
     printf ']\n' >> "$DB"
     [ -f .compile ] || echo '[]' > .compile

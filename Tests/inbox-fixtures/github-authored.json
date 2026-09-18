@@ -1,0 +1,15 @@
+[
+  {
+    "id": "fixture-pr-0",
+    "isDraft": false,
+    "number": 42,
+    "repository": {
+      "name": "launcher",
+      "nameWithOwner": "example/launcher"
+    },
+    "state": "open",
+    "title": "Fix Inbox refresh",
+    "updatedAt": "2026-09-13T21:08:54Z",
+    "url": "https://github.com/example/launcher/pull/42"
+  }
+]

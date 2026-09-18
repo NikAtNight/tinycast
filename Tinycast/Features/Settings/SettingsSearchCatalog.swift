@@ -113,6 +113,7 @@ enum SettingsSearchCatalog {
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
         + extensions + permissions + backup + about
+        + inbox
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -587,5 +588,13 @@ enum SettingsSearchCatalog {
         .init(
             .aboutLinks, "Support",
             keywords: ["donate", "sponsor", "funding"])
+    ]
+    private static let inbox: [SettingsSearchEntry] = [
+        .init(pane: .inbox, keywords: ["pull requests", "review", "github", "jira"]),
+        .init(.inboxGitHub, "Organizations", keywords: ["owners", "repositories"]),
+        .init(.inboxGitHub, "Refresh interval", keywords: ["minutes", "polling"]),
+        .init(.inboxJira, "Site URL", keywords: ["atlassian", "connection"]),
+        .init(.inboxJira, "Email"),
+        .init(.inboxJira, "API token", keywords: ["keychain", "credentials"])
     ]
 }

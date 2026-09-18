@@ -1,0 +1,52 @@
+[
+  [
+    {
+      "id": "1",
+      "unread": true,
+      "reason": "state_change",
+      "updated_at": "2026-09-18T14:54:54Z",
+      "last_read_at": "2026-09-16T16:49:06Z",
+      "subject": {
+        "type": "PullRequest",
+        "title": "Fix Inbox refresh",
+        "url": "https://api.github.com/repos/example/launcher/pulls/42",
+        "latest_comment_url": null
+      },
+      "repository": {
+        "full_name": "example/launcher"
+      }
+    },
+    {
+      "id": "2",
+      "unread": true,
+      "reason": "subscribed",
+      "updated_at": "2026-09-17T22:41:56Z",
+      "last_read_at": null,
+      "subject": {
+        "type": "PullRequest",
+        "title": "Fix Inbox refresh",
+        "url": "https://api.github.com/repos/example/launcher/pulls/42",
+        "latest_comment_url": null
+      },
+      "repository": {
+        "full_name": "example/launcher"
+      }
+    },
+    {
+      "id": "3",
+      "unread": true,
+      "reason": "subscribed",
+      "updated_at": "2026-09-17T19:59:24Z",
+      "last_read_at": null,
+      "subject": {
+        "type": "PullRequest",
+        "title": "Fix Inbox refresh",
+        "url": "https://api.github.com/repos/example/launcher/pulls/42",
+        "latest_comment_url": null
+      },
+      "repository": {
+        "full_name": "example/launcher"
+      }
+    }
+  ]
+]

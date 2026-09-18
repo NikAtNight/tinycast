@@ -105,6 +105,8 @@ extension SettingsAnchor {
 
     static let aboutAbout = Self(tab: .about, title: "About")
     static let aboutLinks = Self(tab: .about, title: "Links")
+    static let inboxGitHub = Self(tab: .inbox, title: "GitHub")
+    static let inboxJira = Self(tab: .inbox, title: "Jira")
 }
 
 /// Where a search result lands: a whole section, or one row inside it.

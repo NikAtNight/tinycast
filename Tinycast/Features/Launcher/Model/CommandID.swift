@@ -41,6 +41,7 @@ enum CommandID: String, CaseIterable, Sendable {
     case about = "command:about"
     case support = "command:support"
     case quit = "command:quit"
+    case inbox = "command:inbox"
 
     var name: String {
         switch self {
@@ -83,6 +84,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "About Tinycast"
         case .support: return "Support Tinycast"
         case .quit: return "Quit Tinycast"
+        case .inbox: return "Inbox"
         }
     }
 
@@ -127,6 +129,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "info.circle"
         case .support: return "heart"
         case .quit: return "power"
+        case .inbox: return "tray"
         }
     }
 

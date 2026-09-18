@@ -20,6 +20,8 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     /// A Raycast extension command rendering into the palette.
     case extensionCommand
 
+    case inbox
+
     var id: String { rawValue }
 
     /// One value at a time into the search field, so ↵ still acts with no rows to select.
@@ -42,6 +44,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .snippets: return "curlybraces"
         case .dictionary: return "book.closed"
         case .extensionCommand: return "puzzlepiece.extension"
+        case .inbox: return "tray"
         }
     }
     var placeholder: String {
@@ -64,6 +67,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .customCommandArguments: return "Enter a value…"
         // Replaced by the command's own `searchBarPlaceholder` whenever it declares one.
         case .extensionCommand: return "Search…"
+        case .inbox: return "Search Inbox…"
         }
     }
 }

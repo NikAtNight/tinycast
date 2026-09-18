@@ -108,6 +108,8 @@ struct RootPaletteView: View {
         case .extensionCommand:
             return ExtensionCommandScreen(
                 screen: extensionScreen, extensions: extensions, vm: vm, openActions: openActions)
+        case .inbox:
+            return InboxScreen(coordinator: core.inboxCoordinator, vm: vm, openActions: openActions)
         }
     }
 
