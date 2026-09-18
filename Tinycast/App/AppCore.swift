@@ -202,6 +202,7 @@ final class AppCore {
 
     @ObservationIgnored private(set) lazy var portsCoordinator = PortsCoordinator(core: self, session: ports)
     @ObservationIgnored private(set) lazy var inboxCoordinator = InboxCoordinator(store: inboxStore, core: self)
+    @ObservationIgnored private(set) lazy var clipShareCoordinator = ClipShareCoordinator(core: self)
 
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
@@ -247,6 +248,7 @@ final class AppCore {
 
     func start() {
         talixCoordinator.start()
+        _ = clipShareCoordinator
         Signposts.interval("AppCore.start") {
             // Shorten AppKit's ~2–3s tooltip delay; registration domain, so a user default wins.
             UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 250])
@@ -483,6 +485,7 @@ final class AppCore {
     func prepareForTermination() {
         talixCoordinator.stop()
         inboxStore.stop()
+        clipShareCoordinator.stop()
         clipboardTextIndexer?.stop()
         // Caps Lock first: its remap is the one teardown that outlives the process.
         hyperKeyTap.prepareForTermination()

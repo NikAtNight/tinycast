@@ -116,6 +116,7 @@ enum SettingsSearchCatalog {
         + extensions + permissions + backup + about + talix
         + extensions + permissions + backup + about
         + inbox
+        + extensions + permissions + backup + about + clipShare
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -616,4 +617,10 @@ enum SettingsSearchCatalog {
         .init(.inboxJira, "Email"),
         .init(.inboxJira, "API token", keywords: ["keychain", "credentials"])
     ]
+    private static let clipShare: [SettingsSearchEntry] = [
+        .init(pane: .clipShare, keywords: ["video", "upload", "recording", "share"]),
+        .init(.clipShareConnection, "Base URL", keywords: ["server", "endpoint"]),
+        .init(.clipShareConnection, "Token", keywords: ["keychain", "credentials", "bearer"])
+    ]
+
 }

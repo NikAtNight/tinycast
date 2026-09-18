@@ -563,6 +563,9 @@ run installed-ai-test     Tinycast/Features/AI/Model/*.swift \
 run ports-test            $L/SearchRelevance.swift \
                           Tinycast/Features/Ports/Model/*.swift
 run inbox-test Tinycast/Features/Inbox/Model/*.swift
+run clipshare-test         Tinycast/Features/ClipShare/Model/*.swift \
+                           Tinycast/Features/ClipShare/Service/ClipShareClient.swift \
+                           Tinycast/Features/ClipShare/Service/ClipShareMediaExporter.swift
 
 if [ "$emit_db" -eq 1 ]; then
     printf ']\n' >> "$DB"

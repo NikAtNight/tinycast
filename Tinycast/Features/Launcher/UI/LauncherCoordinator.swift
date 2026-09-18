@@ -265,6 +265,12 @@ final class LauncherCoordinator {
             core.talixCoordinator.show()
         case .inbox:
             core.inboxCoordinator.show()
+        case .clipShareLatest:
+            core.clipShareCoordinator.shareLatest()
+        case .clipShareClipboard:
+            core.clipShareCoordinator.shareClipboard()
+        case .clipShareRecent:
+            core.clipShareCoordinator.show()
         }
     }
 

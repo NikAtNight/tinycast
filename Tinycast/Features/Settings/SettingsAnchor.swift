@@ -112,6 +112,7 @@ extension SettingsAnchor {
     static let reposCommands = Self(tab: .repos, title: "Commands")
     static let inboxGitHub = Self(tab: .inbox, title: "GitHub")
     static let inboxJira = Self(tab: .inbox, title: "Jira")
+    static let clipShareConnection = Self(tab: .clipShare, title: "Connection")
 }
 
 /// Where a search result lands: a whole section, or one row inside it.

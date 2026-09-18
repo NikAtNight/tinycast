@@ -35,6 +35,7 @@ struct SettingsDetailView: View {
             case .about: AboutView()
             case .talix: TalixSettingsView()
             case .inbox: InboxSettingsView().environment(core.inboxCoordinator)
+            case .clipShare: ClipShareSettingsView().environment(core.clipShareCoordinator)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -25,6 +25,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case talix
 
     case inbox
+    case clipShareRecent
 
     var id: String { rawValue }
 
@@ -52,6 +53,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .repos: return "folder.badge.gearshape"
         case .talix: return "timer"
         case .inbox: return "tray"
+        case .clipShareRecent: return "video"
         }
     }
     var placeholder: String {
@@ -78,6 +80,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .repos: return "Search repositories, branches and organizations…"
         case .talix: return "Search Talix…"
         case .inbox: return "Search Inbox…"
+        case .clipShareRecent: return "Search recent uploads…"
         }
     }
 }

@@ -118,6 +118,9 @@ struct RootPaletteView: View {
                 openArgumentOptions: openArgumentOptions, metrics: metrics)
         case .inbox:
             return InboxScreen(coordinator: core.inboxCoordinator, vm: vm, openActions: openActions)
+        case .clipShareRecent:
+            return ClipShareScreen(
+                coordinator: core.clipShareCoordinator, vm: vm, openActions: openActions)
         }
     }
 

@@ -48,6 +48,9 @@ enum CommandID: String, CaseIterable, Sendable {
     case talixLogTime = "command:talix-log-time"
     case talixToday = "command:talix-today"
     case inbox = "command:inbox"
+    case clipShareLatest = "command:clipshare-latest"
+    case clipShareClipboard = "command:clipshare-clipboard"
+    case clipShareRecent = "command:clipshare-recent"
 
     var name: String {
         switch self {
@@ -97,6 +100,9 @@ enum CommandID: String, CaseIterable, Sendable {
         case .talixLogTime: return "Talix Log Time"
         case .talixToday: return "Talix Today"
         case .inbox: return "Inbox"
+        case .clipShareLatest: return "Share Latest Recording"
+        case .clipShareClipboard: return "Share File on Clipboard"
+        case .clipShareRecent: return "Recent ClipShare Uploads"
         }
     }
 
@@ -148,6 +154,8 @@ enum CommandID: String, CaseIterable, Sendable {
         case .talixLogTime: return "clock.badge.plus"
         case .talixToday: return "clock"
         case .inbox: return "tray"
+        case .clipShareLatest, .clipShareClipboard: return "square.and.arrow.up"
+        case .clipShareRecent: return "video"
         }
     }
 
