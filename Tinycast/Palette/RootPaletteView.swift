@@ -108,6 +108,10 @@ struct RootPaletteView: View {
         case .extensionCommand:
             return ExtensionCommandScreen(
                 screen: extensionScreen, extensions: extensions, vm: vm, openActions: openActions)
+        case .dictationHistory, .scribeRecordings:
+            return TranscriptsScreen(
+                store: core.transcripts, coordinator: core.transcriptsCoordinator, vm: vm,
+                source: vm.mode == .dictationHistory ? .dictation : .scribe, openActions: openActions)
         }
     }
 

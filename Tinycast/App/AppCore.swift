@@ -61,6 +61,11 @@ final class AppCore {
     let customQuickActions = CustomQuickActionStore()
     let chatGPTSubscription = ChatGPTSubscriptionManager()
     let installedAI = InstalledAIManager()
+    let transcripts = TranscriptStore(
+        historyDirectory: FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/LocalFlow/History"),
+        scribeDirectory: FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/Scribe/library"))
 
     /// Set when a quicklink editor should open with Settings; the pane consumes it.
     var pendingQuicklinkEdit: QuicklinkEditRequest?
@@ -194,6 +199,9 @@ final class AppCore {
         paletteCoordinator: paletteCoordinator, settingsCoordinator: settingsCoordinator,
         core: self)
 
+    @ObservationIgnored private(set) lazy var transcriptsCoordinator = TranscriptsCoordinator(
+        core: self, store: transcripts, windowController: windowController)
+
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
     private(set) var isShowingDialog = false
@@ -245,6 +253,7 @@ final class AppCore {
                 self?.showMessage("Couldn't save Emoji & Symbols pins", tone: .danger)
             }
 
+            _ = transcriptsCoordinator
             appIndex.start(settings: settings)
             clipboardCoordinator.applyEnabled()
             extensions.start(appIndex: appIndex, coordinator: extensionCoordinator)

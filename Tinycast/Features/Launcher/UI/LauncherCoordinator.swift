@@ -251,6 +251,14 @@ final class LauncherCoordinator {
             core.supportCoordinator.showSupport()
         case .quit:
             NSApp.terminate(nil)
+        case .dictationHistoryToday:
+            core.transcriptsCoordinator.openToday()
+        case .pasteLastDictation:
+            core.transcriptsCoordinator.pasteLast()
+        case .dictationHistory:
+            core.transcriptsCoordinator.show(.dictationHistory)
+        case .scribeRecordings:
+            core.transcriptsCoordinator.show(.scribeRecordings)
         }
     }
 

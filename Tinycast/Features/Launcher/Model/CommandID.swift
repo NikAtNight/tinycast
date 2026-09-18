@@ -42,6 +42,11 @@ enum CommandID: String, CaseIterable, Sendable {
     case support = "command:support"
     case quit = "command:quit"
 
+    case dictationHistoryToday = "command:dictation-history-today"
+    case pasteLastDictation = "command:paste-last-dictation"
+    case dictationHistory = "command:dictation-history"
+    case scribeRecordings = "command:scribe-recordings"
+
     var name: String {
         switch self {
         case .aiChat: return "AI Chat"
@@ -83,6 +88,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "About Tinycast"
         case .support: return "Support Tinycast"
         case .quit: return "Quit Tinycast"
+        case .dictationHistoryToday: return "Open Today’s Dictation History"
+        case .pasteLastDictation: return "Paste Last Dictation"
+        case .dictationHistory: return "Dictation History"
+        case .scribeRecordings: return "Scribe Recordings"
         }
     }
 
@@ -127,6 +136,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "info.circle"
         case .support: return "heart"
         case .quit: return "power"
+        case .dictationHistoryToday: return "doc.text"
+        case .pasteLastDictation: return "mic"
+        case .dictationHistory: return "clock.arrow.circlepath"
+        case .scribeRecordings: return "waveform"
         }
     }
 
