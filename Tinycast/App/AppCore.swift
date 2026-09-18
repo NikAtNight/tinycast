@@ -61,6 +61,7 @@ final class AppCore {
     let customQuickActions = CustomQuickActionStore()
     let chatGPTSubscription = ChatGPTSubscriptionManager()
     let installedAI = InstalledAIManager()
+    let ports = PortsSession()
 
     /// Set when a quicklink editor should open with Settings; the pane consumes it.
     var pendingQuicklinkEdit: QuicklinkEditRequest?
@@ -194,6 +195,8 @@ final class AppCore {
         paletteCoordinator: paletteCoordinator, settingsCoordinator: settingsCoordinator,
         core: self)
 
+    @ObservationIgnored private(set) lazy var portsCoordinator = PortsCoordinator(core: self, session: ports)
+
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
     private(set) var isShowingDialog = false
@@ -245,6 +248,7 @@ final class AppCore {
                 self?.showMessage("Couldn't save Emoji & Symbols pins", tone: .danger)
             }
 
+            _ = portsCoordinator
             appIndex.start(settings: settings)
             clipboardCoordinator.applyEnabled()
             extensions.start(appIndex: appIndex, coordinator: extensionCoordinator)

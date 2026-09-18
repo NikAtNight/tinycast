@@ -251,6 +251,8 @@ final class LauncherCoordinator {
             core.supportCoordinator.showSupport()
         case .quit:
             NSApp.terminate(nil)
+        case .ports:
+            core.portsCoordinator.show()
         }
     }
 

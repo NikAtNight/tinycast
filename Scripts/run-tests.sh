@@ -545,6 +545,9 @@ run installed-ai-test     Tinycast/Features/AI/Model/*.swift \
                           Tinycast/Features/AI/Service/InstalledCLIProvider.swift \
                           Tinycast/Features/AI/Service/InstalledAIManager.swift
 
+run ports-test            $L/SearchRelevance.swift \
+                          Tinycast/Features/Ports/Model/*.swift
+
 if [ "$emit_db" -eq 1 ]; then
     printf ']\n' >> "$DB"
     [ -f .compile ] || echo '[]' > .compile
