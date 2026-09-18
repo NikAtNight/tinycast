@@ -2,6 +2,7 @@ import SwiftUI
 
 /// The pane column: whichever pane the history currently points at.
 struct SettingsDetailView: View {
+    @Environment(AppCore.self) private var core
     @Environment(SettingsNavigationState.self) private var navigation
 
     var body: some View {
@@ -30,6 +31,7 @@ struct SettingsDetailView: View {
             case .permissions: PermissionsSettingsView()
             case .backup: BackupSettingsView()
             case .about: AboutView()
+            case .clipShare: ClipShareSettingsView().environment(core.clipShareCoordinator)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

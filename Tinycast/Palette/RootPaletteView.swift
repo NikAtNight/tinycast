@@ -108,6 +108,9 @@ struct RootPaletteView: View {
         case .extensionCommand:
             return ExtensionCommandScreen(
                 screen: extensionScreen, extensions: extensions, vm: vm, openActions: openActions)
+        case .clipShareRecent:
+            return ClipShareScreen(
+                coordinator: core.clipShareCoordinator, vm: vm, openActions: openActions)
         }
     }
 

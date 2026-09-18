@@ -251,6 +251,12 @@ final class LauncherCoordinator {
             core.supportCoordinator.showSupport()
         case .quit:
             NSApp.terminate(nil)
+        case .clipShareLatest:
+            core.clipShareCoordinator.shareLatest()
+        case .clipShareClipboard:
+            core.clipShareCoordinator.shareClipboard()
+        case .clipShareRecent:
+            core.clipShareCoordinator.show()
         }
     }
 

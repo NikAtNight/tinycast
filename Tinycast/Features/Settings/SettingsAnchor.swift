@@ -105,6 +105,7 @@ extension SettingsAnchor {
 
     static let aboutAbout = Self(tab: .about, title: "About")
     static let aboutLinks = Self(tab: .about, title: "Links")
+    static let clipShareConnection = Self(tab: .clipShare, title: "Connection")
 }
 
 /// Where a search result lands: a whole section, or one row inside it.

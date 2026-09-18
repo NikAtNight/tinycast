@@ -112,7 +112,7 @@ enum SettingsSearchCatalog {
         + systemActions + commands + quicklinks + appleShortcuts + fallbacks + ai + quickActions + fileSearch
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
-        + extensions + permissions + backup + about
+        + extensions + permissions + backup + about + clipShare
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -588,4 +588,10 @@ enum SettingsSearchCatalog {
             .aboutLinks, "Support",
             keywords: ["donate", "sponsor", "funding"])
     ]
+    private static let clipShare: [SettingsSearchEntry] = [
+        .init(pane: .clipShare, keywords: ["video", "upload", "recording", "share"]),
+        .init(.clipShareConnection, "Base URL", keywords: ["server", "endpoint"]),
+        .init(.clipShareConnection, "Token", keywords: ["keychain", "credentials", "bearer"])
+    ]
+
 }

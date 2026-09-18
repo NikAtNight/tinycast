@@ -41,6 +41,9 @@ enum CommandID: String, CaseIterable, Sendable {
     case about = "command:about"
     case support = "command:support"
     case quit = "command:quit"
+    case clipShareLatest = "command:clipshare-latest"
+    case clipShareClipboard = "command:clipshare-clipboard"
+    case clipShareRecent = "command:clipshare-recent"
 
     var name: String {
         switch self {
@@ -83,6 +86,9 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "About Tinycast"
         case .support: return "Support Tinycast"
         case .quit: return "Quit Tinycast"
+        case .clipShareLatest: return "Share Latest Recording"
+        case .clipShareClipboard: return "Share File on Clipboard"
+        case .clipShareRecent: return "Recent ClipShare Uploads"
         }
     }
 
@@ -127,6 +133,8 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "info.circle"
         case .support: return "heart"
         case .quit: return "power"
+        case .clipShareLatest, .clipShareClipboard: return "square.and.arrow.up"
+        case .clipShareRecent: return "video"
         }
     }
 

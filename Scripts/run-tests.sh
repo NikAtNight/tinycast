@@ -545,6 +545,10 @@ run installed-ai-test     Tinycast/Features/AI/Model/*.swift \
                           Tinycast/Features/AI/Service/InstalledCLIProvider.swift \
                           Tinycast/Features/AI/Service/InstalledAIManager.swift
 
+run clipshare-test         Tinycast/Features/ClipShare/Model/*.swift \
+                           Tinycast/Features/ClipShare/Service/ClipShareClient.swift \
+                           Tinycast/Features/ClipShare/Service/ClipShareMediaExporter.swift
+
 if [ "$emit_db" -eq 1 ]; then
     printf ']\n' >> "$DB"
     [ -f .compile ] || echo '[]' > .compile
