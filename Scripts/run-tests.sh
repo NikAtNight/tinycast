@@ -568,6 +568,8 @@ run inbox-test Tinycast/Features/Inbox/Model/*.swift
 run clipshare-test         Tinycast/Features/ClipShare/Model/*.swift \
                            Tinycast/Features/ClipShare/Service/ClipShareClient.swift \
                            Tinycast/Features/ClipShare/Service/ClipShareMediaExporter.swift
+run spotify-test           Tinycast/Features/Spotify/Model/*.swift \
+                           Tinycast/Features/Spotify/Service/SpotifySearchSession.swift
 
 if [ "$emit_db" -eq 1 ]; then
     printf ']\n' >> "$DB"

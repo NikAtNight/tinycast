@@ -71,6 +71,9 @@ final class AppCore {
     let kleio = KleioStore(
         libraryDirectory: FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/Scribe/library"))
+    let spotify = SpotifyStore()
+    @ObservationIgnored private(set) lazy var spotifySearch = SpotifySearchSession(
+        perform: { [unowned self] in try await self.spotify.search($0) })
 
     /// Set when a quicklink editor should open with Settings; the pane consumes it.
     var pendingQuicklinkEdit: QuicklinkEditRequest?
@@ -208,6 +211,8 @@ final class AppCore {
     @ObservationIgnored private(set) lazy var inboxCoordinator = InboxCoordinator(store: inboxStore, core: self)
     @ObservationIgnored private(set) lazy var clipShareCoordinator = ClipShareCoordinator(core: self)
     @ObservationIgnored private(set) lazy var kleioCoordinator = KleioCoordinator(core: self)
+    @ObservationIgnored private(set) lazy var spotifyCoordinator = SpotifyCoordinator(
+        store: spotify, session: spotifySearch, core: self)
 
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
@@ -266,6 +271,7 @@ final class AppCore {
 
             _ = portsCoordinator
             _ = kleioCoordinator
+            spotify.start()
             appIndex.start(settings: settings)
             clipboardCoordinator.applyEnabled()
             extensions.start(appIndex: appIndex, coordinator: extensionCoordinator)

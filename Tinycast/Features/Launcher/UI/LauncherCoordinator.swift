@@ -283,6 +283,8 @@ final class LauncherCoordinator {
             core.kleioCoordinator.trigger(.toggleRecording(.meeting))
         case .kleioToggleDictation:
             core.kleioCoordinator.trigger(.toggleDictation)
+        case .spotifySearch:
+            core.spotifyCoordinator.show()
         }
     }
 

@@ -8,6 +8,7 @@ enum SettingsTab: CaseIterable, Identifiable {
     /// The case, never an index: a selectable `List` flattens section and row IDs together.
     case repos
     case clipShare
+    case spotify
 
     var id: Self { self }
 
@@ -39,6 +40,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .talix: return "Talix"
         case .inbox: return "Inbox"
         case .clipShare: return "ClipShare"
+        case .spotify: return "Spotify"
         }
     }
 
@@ -70,6 +72,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .talix: return "timer"
         case .inbox: return "tray"
         case .clipShare: return "video"
+        case .spotify: return "music.note.list"
         }
     }
 }
@@ -101,7 +104,7 @@ enum SettingsSection: CaseIterable, Identifiable {
             return [
                 .ai, .quickActions, .fileSearch, .notes, .snippets, .navigation,
                 .windowManagement, .clipboard, .emoji, .calendar, .extensions,
-                .repos, .talix, .inbox, .clipShare
+                .repos, .talix, .inbox, .clipShare, .spotify
             ]
         case .advanced: return [.backup, .about]
         }
