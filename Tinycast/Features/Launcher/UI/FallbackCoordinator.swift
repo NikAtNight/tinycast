@@ -47,6 +47,7 @@ final class FallbackCoordinator {
         case .builtin(.searchFiles): core.fileSearchCoordinator.show(query: query)
         case .builtin(.runShellCommand): core.customCommandCoordinator.runShellCommand(query)
         case .builtin(.define): core.dictionaryCoordinator.show(term: query)
+        case .builtin(.spotifySearch): core.spotifyCoordinator.show(query: query)
         case .quicklink(let id): core.quicklinkCoordinator.openQuicklink(id: id, filling: query)
         }
     }
@@ -76,6 +77,7 @@ final class FallbackCoordinator {
         case .runShellCommand: return true
         // Settings › Commands is Define's only switch, so hiding the command there hides this too.
         case .define: return visibility.isVisible(CommandCatalog.makeEntry(.define))
+        case .spotifySearch: return visibility.isVisible(CommandCatalog.makeEntry(.spotifySearch))
         }
     }
 }

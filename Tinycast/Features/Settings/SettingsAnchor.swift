@@ -142,4 +142,6 @@ extension SettingsAnchor {
     static let talixDefaults = Self(tab: .talix, title: "Time entries")
     static let talixProjects = Self(tab: .talix, title: "Project rates and billing")
     static let talixCommands = Self(tab: .talix, title: "Commands")
+    static let spotifyCredentials = Self(tab: .spotify, title: "Credentials")
+    static let spotifyCommands = Self(tab: .spotify, title: "Commands")
 }

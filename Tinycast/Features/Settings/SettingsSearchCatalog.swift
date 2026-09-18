@@ -112,7 +112,7 @@ enum SettingsSearchCatalog {
         + systemActions + commands + quicklinks + appleShortcuts + fallbacks + ai + quickActions + fileSearch
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
-        + extensions + repos + talix + inbox + clipShare + permissions + backup + about
+        + extensions + repos + talix + inbox + clipShare + spotify + permissions + backup + about
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -618,6 +618,13 @@ enum SettingsSearchCatalog {
         .init(pane: .clipShare, keywords: ["video", "upload", "recording", "share"]),
         .init(.clipShareConnection, "Base URL", keywords: ["server", "endpoint"]),
         .init(.clipShareConnection, "Token", keywords: ["keychain", "credentials", "bearer"])
+    ]
+    private static let spotify: [SettingsSearchEntry] = [
+        .init(pane: .spotify, keywords: ["music", "play", "track", "album", "playlist", "search"]),
+        .init(.spotifyCredentials, "Client ID", keywords: ["keychain", "developer", "app"]),
+        .init(.spotifyCredentials, "Client Secret", keywords: ["keychain", "credentials", "developer"]),
+        .init(.spotifyCredentials, "Test Connection", keywords: ["token", "verify", "check"]),
+        .init(group: .spotifyCommands, "Commands", keywords: ["hotkey", "shortcut", "search spotify"])
     ]
 
 }

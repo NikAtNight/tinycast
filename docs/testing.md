@@ -139,6 +139,7 @@ If a change touches anything in the right column, the harness on the left is man
 | `mcp-stdio-test` | `MCP/Service/` against a stub server — handshake, listing, calling, and every way one can go away |
 | `ports-test` | `Ports/Model/` parsing, pid/port deduplication, cwd fields and fuzzy filtering |
 | `kleio-test` | `Kleio/Model/` and `KleioStore`: document decoding, fuzzy search, segment ranges, trigger URLs, and library reads over a synthetic tree |
+| `spotify-test` | `Spotify/Model/` and `SpotifySearchSession`: search and token decoding against a hand-written fixture, the row mapper, request shapes, the token expiry margin, the play script guard, and debounce and cancellation through a stub |
 
 The two harnesses that need a server to talk to bring their own: `Tests/ai-fixtures/codex-stub.js`
 and `mcp-stub.js`, each copied into a scratch directory and put in front of PATH so the locator finds

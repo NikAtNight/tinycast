@@ -58,6 +58,7 @@ enum CommandID: String, CaseIterable, Sendable {
     case kleioStopRecording = "command:kleio-stop-recording"
     case kleioToggleRecording = "command:kleio-toggle-recording"
     case kleioToggleDictation = "command:kleio-toggle-dictation"
+    case spotifySearch = "command:spotify-search"
 
     var name: String {
         switch self {
@@ -116,6 +117,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .kleioStopRecording: return "Stop Kleio Recording"
         case .kleioToggleRecording: return "Toggle Kleio Recording"
         case .kleioToggleDictation: return "Toggle Kleio Dictation"
+        case .spotifySearch: return "Search Spotify"
         }
     }
 
@@ -175,6 +177,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .kleioStopRecording: return "stop.circle"
         case .kleioToggleRecording: return "record.circle.fill"
         case .kleioToggleDictation: return "waveform.circle"
+        case .spotifySearch: return "music.note.list"
         }
     }
 

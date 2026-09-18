@@ -65,6 +65,7 @@ extension SettingsTab {
             [.joinNextMeeting, .mySchedule, .createEvent, .copyMeetingLink, .openInCalendar]
         case .repos: [.repos]
         case .talix: [.talixStartTimer, .talixStopTimer, .talixLogTime, .talixToday]
+        case .spotify: [.spotifySearch]
         default: []
         }
     }

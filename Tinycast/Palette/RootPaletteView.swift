@@ -124,6 +124,8 @@ struct RootPaletteView: View {
         case .kleioRecordings:
             return KleioRecordingsScreen(
                 store: core.kleio, coordinator: core.kleioCoordinator, vm: vm, openActions: openActions)
+        case .spotify:
+            return SpotifyScreen(coordinator: core.spotifyCoordinator, vm: vm, openActions: openActions)
         }
     }
 
