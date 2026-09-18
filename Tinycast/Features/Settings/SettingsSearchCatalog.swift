@@ -112,11 +112,7 @@ enum SettingsSearchCatalog {
         + systemActions + commands + quicklinks + appleShortcuts + fallbacks + ai + quickActions + fileSearch
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
-        + extensions + permissions + backup + about + repos
-        + extensions + permissions + backup + about + talix
-        + extensions + permissions + backup + about
-        + inbox
-        + extensions + permissions + backup + about + clipShare
+        + extensions + repos + talix + inbox + clipShare + permissions + backup + about
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -609,6 +605,7 @@ enum SettingsSearchCatalog {
         .init(.talixDefaults, "Billable by default"),
         .init(group: .talixProjects, "Project rates and billing", keywords: ["hourly", "rate", "billable"]),
         .init(group: .talixCommands, "Commands", keywords: ["start", "stop", "timer", "log", "today"])
+    ]
     private static let inbox: [SettingsSearchEntry] = [
         .init(pane: .inbox, keywords: ["pull requests", "review", "github", "jira"]),
         .init(.inboxGitHub, "Organizations", keywords: ["owners", "repositories"]),

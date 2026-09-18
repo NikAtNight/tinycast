@@ -62,25 +62,4 @@ sizes, newest-video selection, API decoding, exact multipart bytes, lost respons
 recent records, revoke, delete and rejected credentials. Fixtures never call the production API.
 
 Run `./Scripts/run-tests.sh clipshare-test`, the full suite, lint and the Debug build as described in
-`docs/testing.md`. Live uploads need a user-supplied token and were not exercised during development.
-
-### Development check, 2026-09-18
-
-Verified on this worktree with macOS 27 and Xcode 27, before commit:
-
-- ClipShare harness passed, including PNG rejection, temporary-file cleanup and cancellation.
-- Full suite ran all 77 harnesses. 69 passed. Failures were file-search, clipboard, clipboard-text,
-  pasteboard, custom-command, snippets, notes and notes-editor. Diagnostics included unavailable
-  system services, file replacement errors and Vision pixel-buffer creation failure. Icon-cache
-  passed in this restricted environment. These failures need a rerun outside this sandbox.
-- Lint and model purity passed. The final diff has no whitespace errors.
-- The normal build failed at Icon Studio export. A build with only command-line overrides
-  `EXCLUDED_SOURCE_FILE_NAMES=tinycast.icon ASSETCATALOG_COMPILER_APPICON_NAME=` and
-  `OTHER_SWIFT_FLAGS=-disable-sandbox` passed. No project settings changed for these overrides.
-- The test runner needed `TINYCAST_TEST_JOBS=2` because `sysctl` was denied, a worktree-local
-  `TMPDIR`, and a local compiler wrapper supplying the SDK path and `-disable-sandbox` for macros.
-- App launch failed through LaunchServices and aborted when invoked directly. Successful movie
-  export, rendered UI, Keychain persistence and live API behavior remain unverified.
-- Git could not create the parent repository's worktree `index.lock`, so this record describes
-  an uncommitted diff. Build/test logs are `/tmp/tinycast-clipshare-{build-final,tests-isolated,
-  focused,lint-final}.log` on the development machine.
+`docs/testing.md`. Live uploads need a user-supplied token.

@@ -25,8 +25,11 @@ struct ClipShareScreen: PaletteScreen {
 
     func activate(at selection: Int) {
         guard rows.indices.contains(selection) else { return }
-        if rows[selection].status == .ready { coordinator.copy(rows[selection]) }
-        else { openActions() }
+        if rows[selection].status == .ready {
+            coordinator.copy(rows[selection])
+        } else {
+            openActions()
+        }
     }
 
     func secondary(at selection: Int) -> Bool {

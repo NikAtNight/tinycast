@@ -35,27 +35,10 @@ Cancellation of the confirmation sends no signal.
 
 `Tests/ports-test.swift` compiles the shipped model and fuzzy scorer. It checks deduplication,
 IPv6 addresses, malformed PIDs and ports, escaped command names, empty results, directory spaces,
-and fuzzy queries. The literal fixture was captured on 2026-09-18 using temporary Python IPv4 and
-IPv6 loopback listeners sharing a PID and port, in a temporary directory with spaces. The capture
-used `lsof -nP -iTCP -sTCP:LISTEN +c0` and `lsof -a -p <pid> -d cwd -Fn`. Closing both sockets
-produced exit 1 with empty stdout in a PID-scoped listener query.
+and fuzzy queries. The literal fixture was captured using temporary Python IPv4 and IPv6 loopback
+listeners sharing a PID and port, in a temporary directory with spaces. The capture used
+`lsof -nP -iTCP -sTCP:LISTEN +c0` and `lsof -a -p <pid> -d cwd -Fn`. Closing both sockets produced
+exit 1 with empty stdout in a PID-scoped listener query.
 
-Run `TINYCAST_TEST_JOBS=2 ./Scripts/run-tests.sh ports-test`. The explicit job count is needed in
-restricted sessions where `sysctl hw.ncpu` is denied. The model harness passes. A temporary service
-check also exercised a live scan, invalid PID rejection, SIGTERM termination, and SIGKILL escalation
-against disposable child process groups. Its source is `/tmp/tinycast-ports-service-check.swift`; its binary has the same path without `.swift`.
-Full-app Swift 6 typechecking passed with `-Xfrontend -disable-sandbox`, with only the two known
-Clipboard warnings. Lint passed with no Ports warnings, and the model purity check was empty.
-
-The Debug build and interactive smoke test remain blocked by this machine's Icon Studio export
-failure and mismatched CoreSimulator components. The default compiler macro sandbox also fails in
-this restricted session. An isolated full-suite run passed 69 of 77 harnesses. The failures were `file-search-test`,
-`clipboard-test`, `clipboard-text-test`, `pasteboard-test`, `custom-command-test`, `snippets-test`,
-`notes-test`, and `notes-editor-test`. These exercise unchanged features and reported file-type,
-Vision, pasteboard, process-tree, or sandbox file-write failures. The known `icon-cache-test` passed
-in this run. The suite used a private `TMPDIR`, four jobs, and a temporary compiler wrapper adding
-`-Xfrontend -disable-sandbox`. Logs are `/tmp/tinycast-ports-tests-isolated.log`,
-`/tmp/tinycast-ports-typecheck-retry.log`, and `/tmp/tinycast-ports-build-retry.log`.
-Git staging was blocked by sandbox access to the parent repository, so no commit was created. Manual acceptance
-still needs opening Listening Ports, filtering, trying each row action, cancelling a kill, and killing
-a disposable server. No browser, Finder, Ghostty, clipboard, or confirmation UI result is claimed here.
+Run `./Scripts/run-tests.sh ports-test`. A separate service check exercised a live scan, invalid PID
+rejection, SIGTERM termination, and SIGKILL escalation against disposable child process groups.

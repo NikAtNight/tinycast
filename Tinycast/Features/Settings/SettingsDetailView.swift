@@ -4,7 +4,6 @@ import SwiftUI
 struct SettingsDetailView: View {
     @Environment(AppCore.self) private var core
     @Environment(SettingsNavigationState.self) private var navigation
-    @Environment(AppCore.self) private var core
 
     var body: some View {
         // Not a `TabView`: `NSTabView` re-hosts on selection and breaks the recorder.

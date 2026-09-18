@@ -90,33 +90,4 @@ on 2026-09-18. Repository names, IDs, titles, and URLs are replaced with example
 fields are omitted. The review query returned an empty array. The nonempty authored fixture also
 exercises review decoding. The Jira fixture is handwritten against the documented response.
 
-Acceptance checks still requiring a running app are opening Inbox from its command and hotkey,
-arrow navigation across groups, Command-K actions, browser delivery, settings persistence, and
-read markers after relaunch. Jira live verification additionally needs a site, email, and API token.
-See the implementation report for executed commands and environment limitations.
-
-### Implementation check on 2026-09-18
-
-The final diff was checked in the dedicated `feat/inbox` worktree. No Jira call was attempted.
-The normal Debug build failed on Icon Studio asset export. Excluding `tinycast.icon` then exposed
-sandbox failures starting Swift macro plugins. Adding `-Xfrontend -disable-sandbox` to that diagnostic
-build succeeded. These are command-line overrides only, with no project setting changes. The full
-compile reported the two existing Clipboard warnings and Xcode's skipped AppIntents metadata warning.
-
-The focused Inbox test passed 26 checks. The first full suite with two workers failed 38 of 77
-harnesses, mostly on macro startup. Retrying with a worktree-local `swiftc` wrapper adding that same
-compiler flag passed 69 of 77, including Inbox and Settings history. The remaining failures were
-file-search, clipboard, clipboard-text, pasteboard, custom-command, snippets, notes, and notes-editor.
-Their diagnostics concern system type lookup, Vision pixel buffers, pasteboard service access,
-process-tree termination, and file replacement in temporary directories. Those implementations are
-unchanged by this feature. This run did not reproduce the stated icon-cache baseline failure.
-
-`./Scripts/lint.sh` passed, with existing warnings elsewhere and none in Inbox. The model purity grep
-printed nothing. `git diff --check` passed. Evidence logs are local files under `/tmp/tinycast-inbox-*`.
-The test runner used `TMPDIR="$PWD/.derived/test-tmp/"` to avoid sibling worktrees' shared harness
-outputs and `TINYCAST_TEST_JOBS=2` because sandboxed `sysctl -n hw.ncpu` is denied.
-
-Launch Services refused the built Debug app with `kLSNoExecutableErr` even though the executable exists.
-Direct execution exited with status 134 before producing a log. No interactive smoke check passed.
-Git staging was denied while creating the worktree's `index.lock` outside the writable directory,
-so no implementation commit could be created in this session. Nothing was pushed.
+Jira live verification needs a site, email, and API token.

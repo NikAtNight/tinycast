@@ -521,6 +521,7 @@ final class AppSettings {
     }
     var reposShowWorktrees: Bool {
         didSet { defaults.set(reposShowWorktrees, forKey: Key.reposShowWorktrees.rawValue) }
+    }
     var talixEnvironment: TalixEnvironment {
         didSet { defaults.set(talixEnvironment.rawValue, forKey: Key.talixEnvironment.rawValue) }
     }

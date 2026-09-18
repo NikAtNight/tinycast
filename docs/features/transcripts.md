@@ -72,37 +72,6 @@ recovery, cancellation and source switching. It never reads either real applicat
 ./Scripts/run-tests.sh transcripts-store-test
 ```
 
-For a manual check, open both commands, search for an entry, use Return and Command-K, and select a
-Scribe segment range. Check paste targeting from a text editor. Append a synthetic dictation while its
-screen is open, then close and reopen. Automated parser checks do not establish paste permissions or
-visual behavior. Build and runtime verification results are recorded in the implementation handoff.
-
-## Implementation verification
-
-Checked on 2026-09-18 in the `feat/transcripts` worktree. The implementation is an uncommitted diff;
-Git could not create the parent repository's worktree index lock under the workspace sandbox.
-
-- PASS: both transcript harnesses, including synthetic filesystem events and cancellation.
-- PASS: focused Swift 6 typechecks of every new feature file and every edited Swift integration file,
-  with no diagnostics. `swiftc -frontend -typecheck` used the installed macOS SDK and macro plugin paths.
-- PASS: `./Scripts/lint.sh`, with existing warnings elsewhere, and `git diff --check`.
-- PASS: the model AppKit/SwiftUI/Cocoa import grep returned no matches.
-- FAIL: the Debug `xcodebuild` command stopped at `Icon export exited with status 255` for the existing
-  `tinycast.icon`. Regenerating the project and retrying did not resolve the export failure.
-- FAIL: the full suite passed 70 of 78 harnesses. All eight failures reproduced against untouched
-  `HEAD`: file-search, clipboard, clipboard-text, pasteboard, custom-command, snippets, notes and
-  notes-editor. These include unavailable system services and file-operation failures in this sandbox.
-- NOT RUN: interactive palette, paste targeting and visual smoke checks, because no app build completed.
-
-The runner needed `TINYCAST_TEST_JOBS=4` because `sysctl` is denied. An isolated `TMPDIR` kept its
-artifacts separate from sibling worktrees. Macro compilation needed `-Xfrontend -disable-sandbox`
-to avoid a nested sandbox failure; the outer workspace restrictions stayed active. A temporary
-compiler wrapper also supplied the macOS SDK, target and a worktree-local module cache. No toolchain
-or global configuration was changed. Logs are `/tmp/transcripts-suite-complete.log`,
-`/tmp/transcripts-build-retry.log`, `/tmp/transcripts-lint-final.log`, and
-`/tmp/transcripts-baseline-<harness>.log`. Focused typecheck logs are
-`/tmp/transcripts-primary-typecheck.log` and `/tmp/transcripts-shared-typecheck.log`.
-
 ## Out of scope
 
 Toggling dictation needs a URL scheme such as `localflow://toggle` added to LocalFlow itself.

@@ -100,11 +100,8 @@ enum SettingsSection: CaseIterable, Identifiable {
         case .features:
             return [
                 .ai, .quickActions, .fileSearch, .notes, .snippets, .navigation,
-                .windowManagement, .clipboard, .emoji, .calendar, .extensions, .repos
-                .windowManagement, .clipboard, .emoji, .calendar, .extensions, .talix
                 .windowManagement, .clipboard, .emoji, .calendar, .extensions,
-                .inbox
-                .windowManagement, .clipboard, .emoji, .calendar, .extensions, .clipShare
+                .repos, .talix, .inbox, .clipShare
             ]
         case .advanced: return [.backup, .about]
         }
