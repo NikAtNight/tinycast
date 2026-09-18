@@ -374,7 +374,41 @@ final class AppIndex {
         CommandCatalog.all.filter {
             guard let command = CommandCatalog.command(for: $0) else { return true }
             return !hiddenCommands.contains(command)
+        }.map(brandedWithApplication)
+    }
+
+    private var applicationIcons: [String: EntryIcon] = [:]
+
+    /// A command that drives an installed app wears that app's icon; otherwise it keeps its symbol.
+    private func brandedWithApplication(_ entry: AppEntry) -> AppEntry {
+        guard let command = CommandCatalog.command(for: entry),
+            let bundleID = command.applicationBundleID,
+            let icon = applicationIcon(bundleID: bundleID)
+        else { return entry }
+        var branded = entry
+        branded.iconOverride = icon
+        return branded
+    }
+
+    private func applicationIcon(bundleID: String) -> EntryIcon? {
+        if let icon = applicationIcons[bundleID] { return icon }
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return nil
         }
+        let icon = EntryIcon.application(path: url.path, stamp: FileIconStamp.value(for: url))
+        applicationIcons[bundleID] = icon
+        return icon
+    }
+
+    /// A deeplink with no chosen symbol shows the app that will open it, which is what the row does.
+    private func quicklinkIcon(_ quicklink: Quicklink) -> EntryIcon? {
+        guard quicklink.iconSymbol == nil else { return nil }
+        if let bundleID = quicklink.openWithBundleID { return applicationIcon(bundleID: bundleID) }
+        guard case .deeplink(let url)? = QuicklinkDestination.detect(quicklink.link),
+            let application = NSWorkspace.shared.urlForApplication(toOpen: url),
+            let bundleID = Bundle(url: application)?.bundleIdentifier
+        else { return nil }
+        return applicationIcon(bundleID: bundleID)
     }
 
     /// Whether the feature behind a command is on, which is what its shortcut has to obey too.
@@ -418,7 +452,11 @@ final class AppIndex {
             quicklinks
             .filter { $0.isEnabled && $0.showsInRootSearch }
             .sorted(by: Quicklink.precedes)
-            .map(AppEntry.init)
+            .map { quicklink in
+                var entry = AppEntry(quicklink)
+                entry.iconOverride = quicklinkIcon(quicklink)
+                return entry
+            }
         guard entries != quicklinkEntries else { return }
         quicklinkEntries = entries
         publishEntries()

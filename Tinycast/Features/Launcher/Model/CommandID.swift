@@ -208,3 +208,20 @@ enum CommandID: String, CaseIterable, Sendable {
         isQueryDriven || self == .quit ? nil : .command(self)
     }
 }
+
+extension CommandID {
+    /// The app a command drives, so its row wears that app's icon whenever the app is installed.
+    var applicationBundleID: String? {
+        switch self {
+        case .kleioRecordings, .kleioStartMeeting, .kleioStartMemo, .kleioStopRecording,
+            .kleioToggleRecording, .kleioToggleDictation:
+            return "app.talix.scribe"
+        case .clipShareLatest, .clipShareClipboard, .clipShareRecent:
+            return "app.talix.clipshare"
+        case .talixStartTimer, .talixStopTimer, .talixLogTime, .talixToday:
+            return "app.talix.time"
+        default:
+            return nil
+        }
+    }
+}

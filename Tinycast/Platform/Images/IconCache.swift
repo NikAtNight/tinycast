@@ -61,6 +61,8 @@ enum EntryIcon: Hashable, Sendable {
     case artwork(path: String, extent: CGFloat)
     /// A declared type's icon, for a bundle whose own file icon is a placeholder.
     case contentType(String)
+    /// An installed app's icon on a synthetic row, so a command wears the app it drives.
+    case application(path: String, stamp: Int)
 }
 
 struct IconSize: Hashable, Sendable {
@@ -371,6 +373,7 @@ enum IconCache {
         case .tintedSymbol(let name, let tint): return symbolIcon(named: name, tint: tint)
         case .artwork(let path, let extent): return artwork(atPath: path, extent: extent)
         case .contentType(let identifier): return contentTypeIcon(identifier)
+        case .application(let path, let stamp): return icon(forFile: path, stamp: stamp)
         }
     }
 
@@ -381,6 +384,7 @@ enum IconCache {
         case .tintedSymbol(let name, let tint): return cachedSymbol(named: name, tint: tint)
         case .artwork(let path, let extent): return cachedArtwork(atPath: path, extent: extent)
         case .contentType(let identifier): return cachedContentTypeIcon(identifier)
+        case .application(let path, let stamp): return cached(forFile: path, stamp: stamp, size: size)
         }
     }
 
@@ -392,6 +396,8 @@ enum IconCache {
         case .artwork(let path, let extent):
             return await loadArtworkAsync(atPath: path, extent: extent)
         case .contentType(let identifier): return await loadContentTypeIconAsync(identifier)
+        case .application(let path, let stamp):
+            return await loadAsync(forFile: path, stamp: stamp, size: size)
         }
     }
 

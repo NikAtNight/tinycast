@@ -23,7 +23,6 @@
       "id": "66BF23BE-5911-403E-8CFD-BEF7DB3ED07E",
       "name": "Spotify search",
       "link": "spotify:search:{argument name=\"Song or artist\"}",
-      "iconSymbol": "music.note",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -41,7 +40,6 @@
       "id": "821F450A-F5FE-4EF9-A0D3-D9E75F0DF496",
       "name": "Obsidian open note",
       "link": "obsidian://open?vault=Notes&file={argument name=\"Note\"}",
-      "iconSymbol": "doc.text",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -50,7 +48,6 @@
       "id": "EBD5D50E-2AE8-4214-BE98-D9A4C22B36C8",
       "name": "Obsidian daily note",
       "link": "obsidian://daily?vault=Notes",
-      "iconSymbol": "calendar",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -59,7 +56,6 @@
       "id": "311CE5FA-43A1-4837-9229-133BF15834C6",
       "name": "Obsidian new research note",
       "link": "obsidian://new?vault=Notes&file=03%20Research%20Notes/{argument name=\"Title\"}",
-      "iconSymbol": "doc.badge.plus",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -68,7 +64,6 @@
       "id": "60C7A945-EBD4-4B20-BCE1-F4E9F089DECE",
       "name": "Obsidian new work note",
       "link": "obsidian://new?vault=Notes&file=04%20Work/{argument name=\"Title\"}",
-      "iconSymbol": "doc.badge.plus",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -77,7 +72,6 @@
       "id": "9112B6E0-62E9-4C0C-97BC-45C6D90C3F5E",
       "name": "Obsidian new life note",
       "link": "obsidian://new?vault=Notes&file=06%20Life/{argument name=\"Title\"}",
-      "iconSymbol": "doc.badge.plus",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -86,7 +80,6 @@
       "id": "5047AF01-321D-44AE-B861-54627964F0A0",
       "name": "Obsidian new journal entry",
       "link": "obsidian://new?vault=Notes&file=01%20Journal/{date format=\"yyyy-MM-dd\"}",
-      "iconSymbol": "book",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"
@@ -95,7 +88,6 @@
       "id": "8F539D67-06F6-4D67-A41A-00F28309896D",
       "name": "Obsidian search",
       "link": "obsidian://search?vault=Notes&query={argument name=\"Query\"}",
-      "iconSymbol": "magnifyingglass",
       "isEnabled": true,
       "showsInRootSearch": true,
       "createdAt": "2026-09-18T19:15:01Z"

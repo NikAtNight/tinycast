@@ -40,12 +40,13 @@ struct ReposScreen: PaletteScreen {
         guard let repo = repository(at: selection) else { return nil }
         let coordinator = core.reposCoordinator
         var items = [
-            PopoverMenuItem(title: "Open in Supacode", systemImage: "chevron.left.forwardslash.chevron.right") {
-                coordinator.openSupacode(repo)
-            },
-            PopoverMenuItem(title: "Open in Ghostty", systemImage: "terminal") {
-                coordinator.openGhostty(repo)
-            },
+            PopoverMenuItem(
+                title: "Open in Supacode",
+                icon: Self.applicationIcon("/Applications/supacode.app", fallback: "chevron.left.forwardslash.chevron.right")
+            ) { coordinator.openSupacode(repo) },
+            PopoverMenuItem(
+                title: "Open in Ghostty", icon: Self.applicationIcon("/Applications/Ghostty.app", fallback: "terminal")
+            ) { coordinator.openGhostty(repo) },
             PopoverMenuItem(title: "Show in Finder", systemImage: "folder", shortcut: "⌘↵") {
                 coordinator.reveal(repo)
             }
@@ -98,6 +99,10 @@ struct ReposScreen: PaletteScreen {
                 vm.selection = position
             }
             .onDisappear { core.reposCoordinator.endShow() })
+    }
+
+    private static func applicationIcon(_ path: String, fallback: String) -> PopoverMenuIcon {
+        FileManager.default.fileExists(atPath: path) ? .file(path: path) : .symbol(fallback)
     }
 }
 
@@ -210,5 +215,4 @@ private struct RepoRow: View {
         .help(repository.path)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-}
+    }}
