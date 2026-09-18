@@ -65,12 +65,13 @@ struct QuicklinkArgumentsRow: View {
     static func fieldWidth(
         for argument: SnippetTemplateEngine.MissingArgument, metrics: InterfaceMetrics
     ) -> CGFloat {
-        let name = CGFloat(argument.name.count) * metrics.scaled(7)
-        return min(max(name + metrics.scaled(34), metrics.scaled(72)), metrics.scaled(160))
+        let name = CGFloat(argument.name.count) * metrics.scaled(9)
+        return min(max(name + metrics.scaled(24), metrics.scaled(96)), metrics.scaled(220))
     }
 }
 
-/// Shared chrome, so a typed field and a chosen one read as the same control.
+/// Shared chrome, so a typed field and a chosen one read as the same control. It draws no edge:
+/// the field continues the query, and only the caret's faint highlight says where typing lands.
 private struct ArgumentFieldChrome: ViewModifier {
     @Environment(\.metrics) private var metrics
     let argument: SnippetTemplateEngine.MissingArgument
@@ -87,26 +88,19 @@ private struct ArgumentFieldChrome: ViewModifier {
             .background(
                 RoundedRectangle(cornerRadius: metrics.radius.row, style: .continuous).fill(fill)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: metrics.radius.row, style: .continuous)
-                    .strokeBorder(stroke, lineWidth: 1)
-            )
             .onHover { hovered = $0 }
-            .help(isOwed ? "\(argument.name) — required" : argument.name)
+            .help(isOwed ? "\(argument.name), required" : argument.name)
     }
 
     private var fill: Color {
-        if isFocused { return Theme.Colors.selection }
-        if hovered { return Theme.Colors.rowHover }
-        return Theme.Colors.cardFill
+        if isFocused { return Theme.Colors.rowHover }
+        return .clear
     }
+}
 
-    /// Focus reads as a brighter edge; only a field left behind unanswered turns red.
-    private var stroke: Color {
-        if isFocused { return Color.accentColor }
-        if isOwed { return Theme.Colors.destructive.opacity(0.55) }
-        return Theme.Colors.cardStroke
-    }
+/// The prompt's colour: a field left behind unanswered warns in the text itself, not with an edge.
+private func promptColor(isOwed: Bool) -> Color {
+    isOwed ? Theme.Colors.destructive.opacity(0.8) : Theme.Colors.textTertiary
 }
 
 private struct ArgumentField: View {
@@ -122,13 +116,14 @@ private struct ArgumentField: View {
     var body: some View {
         TextField(
             "", text: $text,
-            prompt: Text(argument.name).foregroundStyle(Theme.Colors.textTertiary)
+            prompt: Text(argument.name).foregroundStyle(promptColor(isOwed: isOwed && text.isEmpty))
         )
         .textFieldStyle(.plain)
-        .font(metrics.typography.rowTrailing)
+        .font(metrics.typography.searchField)
+        .foregroundStyle(Theme.Colors.textPrimary)
         .tint(Theme.Colors.textPrimary)
         .onSubmit(onSubmit)
-        .multilineTextAlignment(.center)
+        .multilineTextAlignment(.leading)
         .modifier(
             ArgumentFieldChrome(
                 argument: argument, isFocused: isFocused, isOwed: isOwed && text.isEmpty,
@@ -149,9 +144,9 @@ private struct ArgumentChoiceField: View {
     var body: some View {
         HStack(spacing: metrics.spacing.xxs) {
             Text(text.isEmpty ? argument.name : text)
-                .font(metrics.typography.rowTrailing)
+                .font(metrics.typography.searchField)
                 .foregroundStyle(
-                    text.isEmpty ? Theme.Colors.textTertiary : Theme.Colors.textPrimary
+                    text.isEmpty ? promptColor(isOwed: isOwed) : Theme.Colors.textPrimary
                 )
                 .lineLimit(1)
             Spacer(minLength: 0)
@@ -166,7 +161,7 @@ private struct ArgumentChoiceField: View {
         )
         .contentShape(Rectangle())
         .focusable()
-        // The chrome draws the focused edge, so AppKit's blue ring would be a second one.
+        // The chrome draws the focused fill, so AppKit's blue ring would be a second cue.
         .focusEffectDisabled()
         .onTapGesture(perform: onOpen)
         .onKeyPress(.return) {

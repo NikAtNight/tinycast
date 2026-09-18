@@ -46,8 +46,8 @@ struct CommandArgumentsRow: View {
     )
         -> CGFloat
     {
-        let placeholder = CGFloat(argument.placeholder.count) * metrics.scaled(7)
-        return min(max(placeholder + metrics.scaled(20), metrics.scaled(62)), metrics.scaled(150))
+        let placeholder = CGFloat(argument.placeholder.count) * metrics.scaled(9)
+        return min(max(placeholder + metrics.scaled(24), metrics.scaled(96)), metrics.scaled(220))
     }
 
     /// The order Tab walks: search field (nil) → each argument → back to the search field.
@@ -72,13 +72,14 @@ private struct ArgumentField: View {
     var body: some View {
         TextField(
             "", text: $text,
-            prompt: Text(argument.placeholder).foregroundStyle(Theme.Colors.textTertiary)
+            prompt: Text(argument.placeholder).foregroundStyle(promptColor)
         )
         .textFieldStyle(.plain)
-        .font(metrics.typography.rowTrailing)
-        .tint(.white)
+        .font(metrics.typography.searchField)
+        .foregroundStyle(Theme.Colors.textPrimary)
+        .tint(Theme.Colors.textPrimary)
         .onSubmit(onSubmit)
-        .multilineTextAlignment(.center)
+        .multilineTextAlignment(.leading)
         // Sized to the placeholder so a three-argument command still fits.
         .frame(width: CommandArgumentsRow.fieldWidth(for: argument, metrics: metrics))
         .padding(.horizontal, metrics.spacing.sm)
@@ -86,24 +87,17 @@ private struct ArgumentField: View {
         .background(
             RoundedRectangle(cornerRadius: metrics.radius.row, style: .continuous).fill(fill)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: metrics.radius.row, style: .continuous)
-                .strokeBorder(stroke, lineWidth: 1)
-        )
         .onHover { hovered = $0 }
-        .help(argument.required ? "\(argument.placeholder) — required" : argument.placeholder)
+        .help(argument.required ? "\(argument.placeholder), required" : argument.placeholder)
     }
 
+    // No edge: the field continues the query, and only the caret's faint highlight marks it.
     private var fill: Color {
-        if isFocused { return Theme.Colors.selection }
-        if hovered { return Theme.Colors.rowHover }
-        return ExtensionColors.fieldFill
+        isFocused ? Theme.Colors.rowHover : .clear
     }
 
-    /// Focus reads as a brighter edge; an unfilled required argument stays amber.
-    private var stroke: Color {
-        if isFocused { return ExtensionColors.fieldFocusStroke }
-        if argument.required && text.isEmpty { return Color.orange.opacity(0.45) }
-        return ExtensionColors.fieldStroke
+    /// An unfilled required argument warns in the prompt itself, in the amber the strip always used.
+    private var promptColor: Color {
+        argument.required && text.isEmpty ? Color.orange.opacity(0.8) : Theme.Colors.textTertiary
     }
 }
