@@ -4,6 +4,8 @@ enum SettingsTab: CaseIterable, Identifiable {
         emoji,
         calendar, extensions, permissions, backup, about
     /// The case, never an index: a selectable `List` flattens section and row IDs together.
+    case repos
+
     var id: Self { self }
 
     var title: String {
@@ -30,6 +32,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .permissions: return "Permissions"
         case .backup: return "Backup"
         case .about: return "About"
+        case .repos: return "Repositories"
         }
     }
 
@@ -57,6 +60,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .permissions: return "lock.shield"
         case .backup: return "arrow.up.arrow.down.circle"
         case .about: return "info.circle"
+        case .repos: return "folder.badge.gearshape"
         }
     }
 }
@@ -87,7 +91,7 @@ enum SettingsSection: CaseIterable, Identifiable {
         case .features:
             return [
                 .ai, .quickActions, .fileSearch, .notes, .snippets, .navigation,
-                .windowManagement, .clipboard, .emoji, .calendar, .extensions
+                .windowManagement, .clipboard, .emoji, .calendar, .extensions, .repos
             ]
         case .advanced: return [.backup, .about]
         }

@@ -42,6 +42,7 @@ enum CommandID: String, CaseIterable, Sendable {
     case support = "command:support"
     case quit = "command:quit"
     case ports = "command:ports"
+    case repos = "command:repos"
 
     var name: String {
         switch self {
@@ -85,6 +86,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .support: return "Support Tinycast"
         case .quit: return "Quit Tinycast"
         case .ports: return "Listening Ports"
+        case .repos: return "Repositories"
         }
     }
 
@@ -130,6 +132,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .support: return "heart"
         case .quit: return "power"
         case .ports: return "network"
+        case .repos: return "folder.badge.gearshape"
         }
     }
 

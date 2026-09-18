@@ -249,6 +249,8 @@ final class LauncherCoordinator {
         case .support:
             dismissPalette()
             core.supportCoordinator.showSupport()
+        case .repos:
+            core.reposCoordinator.show()
         case .quit:
             NSApp.terminate(nil)
         case .ports:

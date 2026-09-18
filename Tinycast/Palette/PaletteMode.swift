@@ -21,6 +21,8 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case extensionCommand
     case ports
 
+    case repos
+
     var id: String { rawValue }
 
     /// One value at a time into the search field, so ↵ still acts with no rows to select.
@@ -44,6 +46,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .dictionary: return "book.closed"
         case .extensionCommand: return "puzzlepiece.extension"
         case .ports: return "network"
+        case .repos: return "folder.badge.gearshape"
         }
     }
     var placeholder: String {
@@ -67,6 +70,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         // Replaced by the command's own `searchBarPlaceholder` whenever it declares one.
         case .extensionCommand: return "Search…"
         case .ports: return "Search ports, processes, and projects…"
+        case .repos: return "Search repositories, branches and organizations…"
         }
     }
 }

@@ -510,6 +510,19 @@ final class AppSettings {
         didSet { defaults.set(supportRemindersEnabled, forKey: Key.supportReminders.rawValue) }
     }
 
+    var reposRoots: [String] {
+        didSet { defaults.set(reposRoots, forKey: Key.reposRoots.rawValue) }
+    }
+    var reposIgnorePatterns: [String] {
+        didSet { defaults.set(reposIgnorePatterns, forKey: Key.reposIgnorePatterns.rawValue) }
+    }
+    var reposDefaultAction: String {
+        didSet { defaults.set(reposDefaultAction, forKey: Key.reposDefaultAction.rawValue) }
+    }
+    var reposShowWorktrees: Bool {
+        didSet { defaults.set(reposShowWorktrees, forKey: Key.reposShowWorktrees.rawValue) }
+    }
+
     init() {
         // The only feature switch that defaults on, so absence has to outrank a stored `false`.
         clipboardEnabled =
@@ -675,5 +688,12 @@ final class AppSettings {
         supportRemindersEnabled =
             defaults.object(forKey: Key.supportReminders.rawValue) == nil
             || defaults.bool(forKey: Key.supportReminders.rawValue)
+        reposRoots = defaults.stringArray(forKey: Key.reposRoots.rawValue)
+            ?? ["~/Talix", "~/SXCL", "~/Olive", "~/Repo", "~/gateway"]
+        reposIgnorePatterns = defaults.stringArray(forKey: Key.reposIgnorePatterns.rawValue)
+            ?? ["node_modules", "*-backup-*", "patchdeck-worktree-backups"]
+        reposDefaultAction = defaults.string(forKey: Key.reposDefaultAction.rawValue) ?? "supacode"
+        reposShowWorktrees = defaults.object(forKey: Key.reposShowWorktrees.rawValue) == nil
+            || defaults.bool(forKey: Key.reposShowWorktrees.rawValue)
     }
 }

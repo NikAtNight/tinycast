@@ -75,6 +75,8 @@ struct RootPaletteView: View {
                 index: emojiIndex, frequent: frequentEmoji, pinned: core.pinnedEmoji, core: core, vm: vm,
                 tone: settings.emojiSkinTone, defaultColumns: settings.emojiGridColumns,
                 openActions: openActions)
+        case .repos:
+            return ReposScreen(index: core.repos, core: core, vm: vm, openActions: openActions)
         case .fileSearch:
             return FileSearchScreen(
                 session: fileSearch, core: core, vm: vm, openActions: openActions)

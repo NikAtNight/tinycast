@@ -105,6 +105,11 @@ extension SettingsAnchor {
 
     static let aboutAbout = Self(tab: .about, title: "About")
     static let aboutLinks = Self(tab: .about, title: "Links")
+
+    static let reposRoots = Self(tab: .repos, title: "Root directories")
+    static let reposOptions = Self(tab: .repos, title: "Options")
+    static let reposIgnorePatterns = Self(tab: .repos, title: "Ignore patterns")
+    static let reposCommands = Self(tab: .repos, title: "Commands")
 }
 
 /// Where a search result lands: a whole section, or one row inside it.
