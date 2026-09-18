@@ -138,6 +138,15 @@ enum SettingsBackupCoverage {
         AppSettingsKey.quickActionInstructions.rawValue:
             "Custom model instructions change transformed results and must not move unseen.",
         AppSettingsKey.quickActionLanguage.rawValue:
-            "Follows the language the person at this Mac reads, not the one who wrote the backup."
+            "Follows the language the person at this Mac reads, not the one who wrote the backup.",
+
+        AppSettingsKey.reposRoots.rawValue:
+            "Repository roots describe folders on this Mac.",
+        AppSettingsKey.reposIgnorePatterns.rawValue:
+            "Repository exclusions belong to this Mac's scan roots.",
+        AppSettingsKey.reposDefaultAction.rawValue:
+            "The repository opener names an application installed on this Mac.",
+        AppSettingsKey.reposShowWorktrees.rawValue:
+            "Worktree visibility belongs to this Mac's repository list."
     ]
 }

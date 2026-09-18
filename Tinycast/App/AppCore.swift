@@ -43,6 +43,7 @@ final class AppCore {
     let runningApps = RunningAppsMonitor()
     let palette = PaletteState()
     let fileSearch = FileSearchSession()
+    let repos = RepoIndex()
     let dictionary = DictionarySession()
     let menuSearch = MenuSearchSession()
     let windowSwitch = WindowSwitchSession()
@@ -207,6 +208,8 @@ final class AppCore {
         })
     private let healthTicker = HealthTicker()
 
+    @ObservationIgnored private(set) lazy var reposCoordinator = ReposCoordinator(core: self)
+
     private init() {
         let launcherRanking = LauncherRankingStore()
         let settings = AppSettings()
@@ -253,6 +256,7 @@ final class AppCore {
             windowSwitchCoordinator.applyEnabled()
             menuSearchCoordinator.applyEnabled()
             fileSearchCoordinator.applyPolicy()
+            reposCoordinator.applyPolicy()
             notesCoordinator.applyEnabled()
             aiChatCoordinator.applyEnabled()
             mcpCoordinator.applyEnabled()
@@ -595,6 +599,9 @@ final class AppCore {
         track(
             { _ = $0.snippetsShowInLauncher },
             reproject: { $0.snippetCoordinator.applySnippetsLauncherPresence() })
+        track(
+            { _ = $0.reposRoots; _ = $0.reposIgnorePatterns },
+            reproject: { $0.reposCoordinator.applyPolicy() })
         track({ _ = $0.appearance }, reproject: { $0.applyAppearance() })
         track({ _ = $0.interfaceSize }, reproject: { $0.windowController.applyInterfaceSize() })
     }

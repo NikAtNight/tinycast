@@ -3,6 +3,7 @@ import SwiftUI
 /// The pane column: whichever pane the history currently points at.
 struct SettingsDetailView: View {
     @Environment(SettingsNavigationState.self) private var navigation
+    @Environment(AppCore.self) private var core
 
     var body: some View {
         // Not a `TabView`: `NSTabView` re-hosts on selection and breaks the recorder.
@@ -29,6 +30,7 @@ struct SettingsDetailView: View {
             case .extensions: ExtensionsSettingsView()
             case .permissions: PermissionsSettingsView()
             case .backup: BackupSettingsView()
+            case .repos: ReposSettingsView().environment(core.reposCoordinator)
             case .about: AboutView()
             }
         }

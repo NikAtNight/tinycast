@@ -119,6 +119,10 @@ run slow -O fuzz-test      $L/SearchRelevance.swift $L/ScriptRomanization.swift 
 run slow -O corpus-test    $L/SearchRelevance.swift $L/ScriptRomanization.swift \
                            $L/EntryNaming.swift $L/LauncherOrder.swift \
                            $L/LauncherRankingStore.swift
+run repos-test Tinycast/Features/Repos/Model/*.swift \
+    Tinycast/Features/FileSearch/Model/FileSearchIgnoreList.swift \
+    Tinycast/Features/Launcher/Model/SearchRelevance.swift
+
 run file-search-test       $L/SearchRelevance.swift \
                            Tinycast/Features/FileSearch/Model/*.swift
 run file-search-session-test Tinycast/Platform/Signposts.swift \

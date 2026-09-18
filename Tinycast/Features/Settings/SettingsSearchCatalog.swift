@@ -112,7 +112,7 @@ enum SettingsSearchCatalog {
         + systemActions + commands + quicklinks + appleShortcuts + fallbacks + ai + quickActions + fileSearch
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
-        + extensions + permissions + backup + about
+        + extensions + permissions + backup + about + repos
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -588,4 +588,13 @@ enum SettingsSearchCatalog {
             .aboutLinks, "Support",
             keywords: ["donate", "sponsor", "funding"])
     ]
+    private static let repos: [SettingsSearchEntry] = [
+        .init(pane: .repos, keywords: ["git", "worktrees", "dev server", "supacode", "ghostty"]),
+        .init(group: .reposRoots, "Root directories", keywords: ["folders", "scan"]),
+        .init(.reposOptions, "Default open action", keywords: ["supacode", "ghostty"]),
+        .init(.reposOptions, "Show worktrees", keywords: ["git", "branch"]),
+        .init(group: .reposIgnorePatterns, "Ignore patterns", keywords: ["exclude", "skip"]),
+        .init(group: .reposCommands, "Commands", keywords: ["hotkey", "shortcut"])
+    ]
+
 }

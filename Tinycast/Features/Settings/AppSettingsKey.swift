@@ -85,4 +85,8 @@ enum AppSettingsKey: String, CaseIterable {
     case quickActionInstructions = "quickActionInstructions"
     case quickActionLanguage = "quickActionLanguage"
     case supportReminders = "supportReminders"
+    case reposRoots = "reposRoots"
+    case reposIgnorePatterns = "reposIgnorePatterns"
+    case reposDefaultAction = "reposDefaultAction"
+    case reposShowWorktrees = "reposShowWorktrees"
 }
