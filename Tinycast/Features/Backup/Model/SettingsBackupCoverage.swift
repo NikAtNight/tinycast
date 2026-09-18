@@ -148,5 +148,15 @@ enum SettingsBackupCoverage {
             "The repository opener names an application installed on this Mac.",
         AppSettingsKey.reposShowWorktrees.rawValue:
             "Worktree visibility belongs to this Mac's repository list."
+        AppSettingsKey.talixEnvironment.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixRounding.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixDefaultBillable.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixProjectRates.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixProjectBillable.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential."
     ]
 }

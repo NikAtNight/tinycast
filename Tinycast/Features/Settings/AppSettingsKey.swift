@@ -89,4 +89,9 @@ enum AppSettingsKey: String, CaseIterable {
     case reposIgnorePatterns = "reposIgnorePatterns"
     case reposDefaultAction = "reposDefaultAction"
     case reposShowWorktrees = "reposShowWorktrees"
+    case talixEnvironment = "talixEnvironment"
+    case talixRounding = "talixRounding"
+    case talixDefaultBillable = "talixDefaultBillable"
+    case talixProjectRates = "talixProjectRates"
+    case talixProjectBillable = "talixProjectBillable"
 }

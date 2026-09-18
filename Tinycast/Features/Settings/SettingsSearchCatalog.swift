@@ -113,6 +113,7 @@ enum SettingsSearchCatalog {
         + notes
         + snippets + navigation + windowManagement + clipboard + emoji + calendar
         + extensions + permissions + backup + about + repos
+        + extensions + permissions + backup + about + talix
 
     private static let general: [SettingsSearchEntry] = [
         .init(pane: .general, keywords: ["preferences", "settings"]),
@@ -597,4 +598,13 @@ enum SettingsSearchCatalog {
         .init(group: .reposCommands, "Commands", keywords: ["hotkey", "shortcut"])
     ]
 
+    private static let talix: [SettingsSearchEntry] = [
+        .init(pane: .talix, keywords: ["time", "tracking", "timer", "invoice"]),
+        .init(.talixConnection, "API key", keywords: ["token", "keychain"]),
+        .init(.talixConnection, "Environment", keywords: ["production", "development"]),
+        .init(.talixDefaults, "Rounding", keywords: ["six", "fifteen", "minutes"]),
+        .init(.talixDefaults, "Billable by default"),
+        .init(group: .talixProjects, "Project rates and billing", keywords: ["hourly", "rate", "billable"]),
+        .init(group: .talixCommands, "Commands", keywords: ["start", "stop", "timer", "log", "today"])
+    ]
 }

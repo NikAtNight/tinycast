@@ -255,6 +255,14 @@ final class LauncherCoordinator {
             NSApp.terminate(nil)
         case .ports:
             core.portsCoordinator.show()
+        case .talixStartTimer:
+            core.talixCoordinator.show(pickingProject: true)
+        case .talixStopTimer:
+            core.talixCoordinator.stopTimer()
+        case .talixLogTime:
+            core.talixCoordinator.show(loggingTime: true)
+        case .talixToday:
+            core.talixCoordinator.show()
         }
     }
 

@@ -22,6 +22,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case ports
 
     case repos
+    case talix
 
     var id: String { rawValue }
 
@@ -47,6 +48,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .extensionCommand: return "puzzlepiece.extension"
         case .ports: return "network"
         case .repos: return "folder.badge.gearshape"
+        case .talix: return "timer"
         }
     }
     var placeholder: String {
@@ -71,6 +73,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .extensionCommand: return "Search…"
         case .ports: return "Search ports, processes, and projects…"
         case .repos: return "Search repositories, branches and organizations…"
+        case .talix: return "Search Talix…"
         }
     }
 }

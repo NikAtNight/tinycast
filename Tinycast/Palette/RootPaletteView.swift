@@ -113,6 +113,9 @@ struct RootPaletteView: View {
         case .ports:
             return PortsScreen(
                 session: core.ports, coordinator: core.portsCoordinator, vm: vm, openActions: openActions)
+        case .talix:
+            return TalixScreen(coordinator: core.talixCoordinator, vm: vm, openActions: openActions,
+                openArgumentOptions: openArgumentOptions, metrics: metrics)
         }
     }
 

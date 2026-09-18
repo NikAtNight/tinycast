@@ -43,6 +43,10 @@ enum CommandID: String, CaseIterable, Sendable {
     case quit = "command:quit"
     case ports = "command:ports"
     case repos = "command:repos"
+    case talixStartTimer = "command:talix-start-timer"
+    case talixStopTimer = "command:talix-stop-timer"
+    case talixLogTime = "command:talix-log-time"
+    case talixToday = "command:talix-today"
 
     var name: String {
         switch self {
@@ -87,6 +91,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .quit: return "Quit Tinycast"
         case .ports: return "Listening Ports"
         case .repos: return "Repositories"
+        case .talixStartTimer: return "Talix Start Timer"
+        case .talixStopTimer: return "Talix Stop Timer"
+        case .talixLogTime: return "Talix Log Time"
+        case .talixToday: return "Talix Today"
         }
     }
 
@@ -133,6 +141,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .quit: return "power"
         case .ports: return "network"
         case .repos: return "folder.badge.gearshape"
+        case .talixStartTimer: return "timer"
+        case .talixStopTimer: return "stop.circle"
+        case .talixLogTime: return "clock.badge.plus"
+        case .talixToday: return "clock"
         }
     }
 

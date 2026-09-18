@@ -3,6 +3,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         fallbacks, ai, quickActions, fileSearch, notes, snippets, navigation, windowManagement, clipboard,
         emoji,
         calendar, extensions, permissions, backup, about
+    case talix
     /// The case, never an index: a selectable `List` flattens section and row IDs together.
     case repos
 
@@ -33,6 +34,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .backup: return "Backup"
         case .about: return "About"
         case .repos: return "Repositories"
+        case .talix: return "Talix"
         }
     }
 
@@ -61,6 +63,7 @@ enum SettingsTab: CaseIterable, Identifiable {
         case .backup: return "arrow.up.arrow.down.circle"
         case .about: return "info.circle"
         case .repos: return "folder.badge.gearshape"
+        case .talix: return "timer"
         }
     }
 }
@@ -92,6 +95,7 @@ enum SettingsSection: CaseIterable, Identifiable {
             return [
                 .ai, .quickActions, .fileSearch, .notes, .snippets, .navigation,
                 .windowManagement, .clipboard, .emoji, .calendar, .extensions, .repos
+                .windowManagement, .clipboard, .emoji, .calendar, .extensions, .talix
             ]
         case .advanced: return [.backup, .about]
         }

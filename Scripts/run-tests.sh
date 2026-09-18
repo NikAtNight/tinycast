@@ -504,6 +504,17 @@ run ai-chat-test           Tinycast/Features/AI/Model/AIRequest.swift \
                            Tinycast/Features/AI/Service/ChatHistoryStore.swift \
                            Tinycast/Features/AI/Service/AIToolLoopProvider.swift \
                            Tinycast/Features/AI/UI/AIChatState.swift
+run talix-test             Tinycast/Features/Talix/Model/*.swift \
+                           Tinycast/Features/Talix/Service/*.swift \
+                           Tinycast/Platform/KeychainSecretStore.swift \
+                           Tinycast/Platform/AppPaths.swift \
+                           Tinycast/Features/MCP/Model/MCPProtocol.swift \
+                           Tinycast/Features/AI/Model/AIConnection.swift \
+                           Tinycast/Features/AI/Model/AppleIntelligence.swift \
+                           Tinycast/Features/AI/Model/AITool.swift \
+                           Tinycast/Features/AI/Model/AIStreamDecoder.swift \
+                           Tinycast/Features/AI/Model/AIRequest.swift \
+                           Tinycast/Features/AI/Model/JSONValue.swift
 run mcp-test               Tinycast/Features/Settings/AppSettingsKey.swift \
                            Tinycast/Features/AI/Model/AIConnection.swift \
                            Tinycast/Features/AI/Model/AppleIntelligence.swift \

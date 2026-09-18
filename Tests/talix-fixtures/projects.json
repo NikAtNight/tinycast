@@ -1,0 +1,1 @@
+{"apiUrl":"https://example.invalid","projects":[{"id":"alpha","name":"Alpha","status":"ACTIVE","client":{"id":"client-a","name":"Fixture Client"}},{"id":"beta","name":"Beta","status":"PLANNING","client":null}]}

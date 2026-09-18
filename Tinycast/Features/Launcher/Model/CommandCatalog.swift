@@ -64,6 +64,7 @@ extension SettingsTab {
         case .calendar:
             [.joinNextMeeting, .mySchedule, .createEvent, .copyMeetingLink, .openInCalendar]
         case .repos: [.repos]
+        case .talix: [.talixStartTimer, .talixStopTimer, .talixLogTime, .talixToday]
         default: []
         }
     }

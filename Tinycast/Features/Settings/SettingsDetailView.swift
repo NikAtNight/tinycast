@@ -32,6 +32,7 @@ struct SettingsDetailView: View {
             case .backup: BackupSettingsView()
             case .repos: ReposSettingsView().environment(core.reposCoordinator)
             case .about: AboutView()
+            case .talix: TalixSettingsView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
