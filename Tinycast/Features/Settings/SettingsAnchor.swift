@@ -110,6 +110,8 @@ extension SettingsAnchor {
     static let reposOptions = Self(tab: .repos, title: "Options")
     static let reposIgnorePatterns = Self(tab: .repos, title: "Ignore patterns")
     static let reposCommands = Self(tab: .repos, title: "Commands")
+    static let inboxGitHub = Self(tab: .inbox, title: "GitHub")
+    static let inboxJira = Self(tab: .inbox, title: "Jira")
 }
 
 /// Where a search result lands: a whole section, or one row inside it.

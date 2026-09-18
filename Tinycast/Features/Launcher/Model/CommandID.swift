@@ -47,6 +47,7 @@ enum CommandID: String, CaseIterable, Sendable {
     case talixStopTimer = "command:talix-stop-timer"
     case talixLogTime = "command:talix-log-time"
     case talixToday = "command:talix-today"
+    case inbox = "command:inbox"
 
     var name: String {
         switch self {
@@ -95,6 +96,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .talixStopTimer: return "Talix Stop Timer"
         case .talixLogTime: return "Talix Log Time"
         case .talixToday: return "Talix Today"
+        case .inbox: return "Inbox"
         }
     }
 
@@ -145,6 +147,7 @@ enum CommandID: String, CaseIterable, Sendable {
         case .talixStopTimer: return "stop.circle"
         case .talixLogTime: return "clock.badge.plus"
         case .talixToday: return "clock"
+        case .inbox: return "tray"
         }
     }
 

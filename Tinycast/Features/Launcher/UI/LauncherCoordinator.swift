@@ -263,6 +263,8 @@ final class LauncherCoordinator {
             core.talixCoordinator.show(loggingTime: true)
         case .talixToday:
             core.talixCoordinator.show()
+        case .inbox:
+            core.inboxCoordinator.show()
         }
     }
 

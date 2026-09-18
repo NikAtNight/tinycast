@@ -2,6 +2,7 @@ import SwiftUI
 
 /// The pane column: whichever pane the history currently points at.
 struct SettingsDetailView: View {
+    @Environment(AppCore.self) private var core
     @Environment(SettingsNavigationState.self) private var navigation
     @Environment(AppCore.self) private var core
 
@@ -33,6 +34,7 @@ struct SettingsDetailView: View {
             case .repos: ReposSettingsView().environment(core.reposCoordinator)
             case .about: AboutView()
             case .talix: TalixSettingsView()
+            case .inbox: InboxSettingsView().environment(core.inboxCoordinator)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

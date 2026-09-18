@@ -24,6 +24,8 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case repos
     case talix
 
+    case inbox
+
     var id: String { rawValue }
 
     /// One value at a time into the search field, so ↵ still acts with no rows to select.
@@ -49,6 +51,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .ports: return "network"
         case .repos: return "folder.badge.gearshape"
         case .talix: return "timer"
+        case .inbox: return "tray"
         }
     }
     var placeholder: String {
@@ -74,6 +77,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .ports: return "Search ports, processes, and projects…"
         case .repos: return "Search repositories, branches and organizations…"
         case .talix: return "Search Talix…"
+        case .inbox: return "Search Inbox…"
         }
     }
 }

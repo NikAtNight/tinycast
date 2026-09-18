@@ -116,6 +116,8 @@ struct RootPaletteView: View {
         case .talix:
             return TalixScreen(coordinator: core.talixCoordinator, vm: vm, openActions: openActions,
                 openArgumentOptions: openArgumentOptions, metrics: metrics)
+        case .inbox:
+            return InboxScreen(coordinator: core.inboxCoordinator, vm: vm, openActions: openActions)
         }
     }
 

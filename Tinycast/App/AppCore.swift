@@ -66,6 +66,7 @@ final class AppCore {
     let chatGPTSubscription = ChatGPTSubscriptionManager()
     let installedAI = InstalledAIManager()
     let ports = PortsSession()
+    let inboxStore = InboxStore()
 
     /// Set when a quicklink editor should open with Settings; the pane consumes it.
     var pendingQuicklinkEdit: QuicklinkEditRequest?
@@ -200,6 +201,7 @@ final class AppCore {
         core: self)
 
     @ObservationIgnored private(set) lazy var portsCoordinator = PortsCoordinator(core: self, session: ports)
+    @ObservationIgnored private(set) lazy var inboxCoordinator = InboxCoordinator(store: inboxStore, core: self)
 
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
@@ -308,6 +310,7 @@ final class AppCore {
             updateChecker.start()
             supportReminders.onDue = { [weak self] in self?.supportCoordinator.presentIfDue() }
             supportReminders.start()
+            inboxStore.start()
 
             hyperKeyTap.healthTicker = healthTicker
             hotKeys.doubleTapMonitor.healthTicker = healthTicker
@@ -479,6 +482,7 @@ final class AppCore {
 
     func prepareForTermination() {
         talixCoordinator.stop()
+        inboxStore.stop()
         clipboardTextIndexer?.stop()
         // Caps Lock first: its remap is the one teardown that outlives the process.
         hyperKeyTap.prepareForTermination()
