@@ -223,6 +223,8 @@ extension CommandID {
             return "app.talix.clipshare"
         case .talixStartTimer, .talixStopTimer, .talixLogTime, .talixToday:
             return "app.talix.time"
+        case .spotifySearch:
+            return "com.spotify.client"
         default:
             return nil
         }
