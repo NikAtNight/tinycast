@@ -35,6 +35,9 @@ final class AppCore {
     let currencyRates = CurrencyRateStore()
     let calendarStore = CalendarStore()
     let meetingClock = MeetingClock()
+    let talixStore = TalixStore()
+    @ObservationIgnored private(set) lazy var talixCoordinator = TalixCoordinator(
+        store: talixStore, settings: settings, core: self)
     let updateChecker = UpdateCheckStore()
     let supportReminders: SupportReminderStore
     let emojiIndex = EmojiIndex()
@@ -235,6 +238,7 @@ final class AppCore {
     }
 
     func start() {
+        talixCoordinator.start()
         Signposts.interval("AppCore.start") {
             // Shorten AppKit's ~2–3s tooltip delay; registration domain, so a user default wins.
             UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 250])
@@ -466,6 +470,7 @@ final class AppCore {
     }
 
     func prepareForTermination() {
+        talixCoordinator.stop()
         clipboardTextIndexer?.stop()
         // Caps Lock first: its remap is the one teardown that outlives the process.
         hyperKeyTap.prepareForTermination()

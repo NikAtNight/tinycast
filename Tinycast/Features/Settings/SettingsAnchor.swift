@@ -128,3 +128,10 @@ struct SettingsScrollRequest: Equatable, Sendable {
     let target: SettingsTarget
     let token: Int
 }
+
+extension SettingsAnchor {
+    static let talixConnection = Self(tab: .talix, title: "Connection")
+    static let talixDefaults = Self(tab: .talix, title: "Time entries")
+    static let talixProjects = Self(tab: .talix, title: "Project rates and billing")
+    static let talixCommands = Self(tab: .talix, title: "Commands")
+}

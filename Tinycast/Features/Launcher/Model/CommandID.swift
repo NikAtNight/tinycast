@@ -41,6 +41,10 @@ enum CommandID: String, CaseIterable, Sendable {
     case about = "command:about"
     case support = "command:support"
     case quit = "command:quit"
+    case talixStartTimer = "command:talix-start-timer"
+    case talixStopTimer = "command:talix-stop-timer"
+    case talixLogTime = "command:talix-log-time"
+    case talixToday = "command:talix-today"
 
     var name: String {
         switch self {
@@ -83,6 +87,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "About Tinycast"
         case .support: return "Support Tinycast"
         case .quit: return "Quit Tinycast"
+        case .talixStartTimer: return "Talix Start Timer"
+        case .talixStopTimer: return "Talix Stop Timer"
+        case .talixLogTime: return "Talix Log Time"
+        case .talixToday: return "Talix Today"
         }
     }
 
@@ -127,6 +135,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .about: return "info.circle"
         case .support: return "heart"
         case .quit: return "power"
+        case .talixStartTimer: return "timer"
+        case .talixStopTimer: return "stop.circle"
+        case .talixLogTime: return "clock.badge.plus"
+        case .talixToday: return "clock"
         }
     }
 

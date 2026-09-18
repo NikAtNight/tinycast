@@ -108,6 +108,9 @@ struct RootPaletteView: View {
         case .extensionCommand:
             return ExtensionCommandScreen(
                 screen: extensionScreen, extensions: extensions, vm: vm, openActions: openActions)
+        case .talix:
+            return TalixScreen(coordinator: core.talixCoordinator, vm: vm, openActions: openActions,
+                openArgumentOptions: openArgumentOptions, metrics: metrics)
         }
     }
 

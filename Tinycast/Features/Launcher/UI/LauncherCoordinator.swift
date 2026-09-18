@@ -251,6 +251,14 @@ final class LauncherCoordinator {
             core.supportCoordinator.showSupport()
         case .quit:
             NSApp.terminate(nil)
+        case .talixStartTimer:
+            core.talixCoordinator.show(pickingProject: true)
+        case .talixStopTimer:
+            core.talixCoordinator.stopTimer()
+        case .talixLogTime:
+            core.talixCoordinator.show(loggingTime: true)
+        case .talixToday:
+            core.talixCoordinator.show()
         }
     }
 

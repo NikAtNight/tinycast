@@ -138,6 +138,16 @@ enum SettingsBackupCoverage {
         AppSettingsKey.quickActionInstructions.rawValue:
             "Custom model instructions change transformed results and must not move unseen.",
         AppSettingsKey.quickActionLanguage.rawValue:
-            "Follows the language the person at this Mac reads, not the one who wrote the backup."
+            "Follows the language the person at this Mac reads, not the one who wrote the backup.",
+        AppSettingsKey.talixEnvironment.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixRounding.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixDefaultBillable.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixProjectRates.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential.",
+        AppSettingsKey.talixProjectBillable.rawValue:
+            "Talix account and billing choices stay on the Mac with its Keychain credential."
     ]
 }

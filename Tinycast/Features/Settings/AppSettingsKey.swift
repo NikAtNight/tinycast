@@ -85,4 +85,9 @@ enum AppSettingsKey: String, CaseIterable {
     case quickActionInstructions = "quickActionInstructions"
     case quickActionLanguage = "quickActionLanguage"
     case supportReminders = "supportReminders"
+    case talixEnvironment = "talixEnvironment"
+    case talixRounding = "talixRounding"
+    case talixDefaultBillable = "talixDefaultBillable"
+    case talixProjectRates = "talixProjectRates"
+    case talixProjectBillable = "talixProjectBillable"
 }

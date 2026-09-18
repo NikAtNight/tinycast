@@ -510,6 +510,22 @@ final class AppSettings {
         didSet { defaults.set(supportRemindersEnabled, forKey: Key.supportReminders.rawValue) }
     }
 
+    var talixEnvironment: TalixEnvironment {
+        didSet { defaults.set(talixEnvironment.rawValue, forKey: Key.talixEnvironment.rawValue) }
+    }
+    var talixRounding: TalixTimer.Rounding {
+        didSet { defaults.set(talixRounding.rawValue, forKey: Key.talixRounding.rawValue) }
+    }
+    var talixDefaultBillable: Bool {
+        didSet { defaults.set(talixDefaultBillable, forKey: Key.talixDefaultBillable.rawValue) }
+    }
+    var talixProjectRates: [String: Double] {
+        didSet { defaults.set(talixProjectRates, forKey: Key.talixProjectRates.rawValue) }
+    }
+    var talixProjectBillable: [String: Bool] {
+        didSet { defaults.set(talixProjectBillable, forKey: Key.talixProjectBillable.rawValue) }
+    }
+
     init() {
         // The only feature switch that defaults on, so absence has to outrank a stored `false`.
         clipboardEnabled =
@@ -675,5 +691,11 @@ final class AppSettings {
         supportRemindersEnabled =
             defaults.object(forKey: Key.supportReminders.rawValue) == nil
             || defaults.bool(forKey: Key.supportReminders.rawValue)
+        talixEnvironment = defaults.string(forKey: Key.talixEnvironment.rawValue)
+            .flatMap(TalixEnvironment.init(rawValue:)) ?? .production
+        talixRounding = TalixTimer.Rounding(rawValue: defaults.integer(forKey: Key.talixRounding.rawValue)) ?? .none
+        talixDefaultBillable = defaults.object(forKey: Key.talixDefaultBillable.rawValue) as? Bool ?? true
+        talixProjectRates = defaults.dictionary(forKey: Key.talixProjectRates.rawValue) as? [String: Double] ?? [:]
+        talixProjectBillable = defaults.dictionary(forKey: Key.talixProjectBillable.rawValue) as? [String: Bool] ?? [:]
     }
 }

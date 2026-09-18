@@ -63,6 +63,7 @@ extension SettingsTab {
         case .emoji: [.searchEmoji]
         case .calendar:
             [.joinNextMeeting, .mySchedule, .createEvent, .copyMeetingLink, .openInCalendar]
+        case .talix: [.talixStartTimer, .talixStopTimer, .talixLogTime, .talixToday]
         default: []
         }
     }

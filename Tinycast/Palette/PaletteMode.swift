@@ -19,6 +19,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case customCommandArguments
     /// A Raycast extension command rendering into the palette.
     case extensionCommand
+    case talix
 
     var id: String { rawValue }
 
@@ -42,6 +43,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .snippets: return "curlybraces"
         case .dictionary: return "book.closed"
         case .extensionCommand: return "puzzlepiece.extension"
+        case .talix: return "timer"
         }
     }
     var placeholder: String {
@@ -64,6 +66,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .customCommandArguments: return "Enter a value…"
         // Replaced by the command's own `searchBarPlaceholder` whenever it declares one.
         case .extensionCommand: return "Search…"
+        case .talix: return "Search Talix…"
         }
     }
 }
