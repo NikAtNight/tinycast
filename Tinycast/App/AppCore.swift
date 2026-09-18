@@ -67,10 +67,9 @@ final class AppCore {
     let installedAI = InstalledAIManager()
     let ports = PortsSession()
     let inboxStore = InboxStore()
-    let transcripts = TranscriptStore(
-        historyDirectory: FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Application Support/LocalFlow/History"),
-        scribeDirectory: FileManager.default.homeDirectoryForCurrentUser
+    // Kleio kept its old folder name, so its library still lives under Scribe.
+    let kleio = KleioStore(
+        libraryDirectory: FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/Scribe/library"))
 
     /// Set when a quicklink editor should open with Settings; the pane consumes it.
@@ -208,8 +207,7 @@ final class AppCore {
     @ObservationIgnored private(set) lazy var portsCoordinator = PortsCoordinator(core: self, session: ports)
     @ObservationIgnored private(set) lazy var inboxCoordinator = InboxCoordinator(store: inboxStore, core: self)
     @ObservationIgnored private(set) lazy var clipShareCoordinator = ClipShareCoordinator(core: self)
-    @ObservationIgnored private(set) lazy var transcriptsCoordinator = TranscriptsCoordinator(
-        core: self, store: transcripts, windowController: windowController)
+    @ObservationIgnored private(set) lazy var kleioCoordinator = KleioCoordinator(core: self)
 
     @ObservationIgnored private lazy var windowController = PaletteWindowController(core: self)
     @ObservationIgnored private lazy var messageHUD = MessageHUDController(settings: settings)
@@ -267,7 +265,7 @@ final class AppCore {
             }
 
             _ = portsCoordinator
-            _ = transcriptsCoordinator
+            _ = kleioCoordinator
             appIndex.start(settings: settings)
             clipboardCoordinator.applyEnabled()
             extensions.start(appIndex: appIndex, coordinator: extensionCoordinator)

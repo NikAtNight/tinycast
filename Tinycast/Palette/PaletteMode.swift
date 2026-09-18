@@ -27,8 +27,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case inbox
     case clipShareRecent
 
-    case dictationHistory
-    case scribeRecordings
+    case kleioRecordings
 
     var id: String { rawValue }
 
@@ -57,8 +56,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .talix: return "timer"
         case .inbox: return "tray"
         case .clipShareRecent: return "video"
-        case .dictationHistory: return "mic"
-        case .scribeRecordings: return "waveform"
+        case .kleioRecordings: return "waveform"
         }
     }
     var placeholder: String {
@@ -86,8 +84,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .talix: return "Search Talix…"
         case .inbox: return "Search Inbox…"
         case .clipShareRecent: return "Search recent uploads…"
-        case .dictationHistory: return "Search dictations…"
-        case .scribeRecordings: return "Search recordings…"
+        case .kleioRecordings: return "Search Kleio recordings…"
         }
     }
 }

@@ -271,14 +271,18 @@ final class LauncherCoordinator {
             core.clipShareCoordinator.shareClipboard()
         case .clipShareRecent:
             core.clipShareCoordinator.show()
-        case .dictationHistoryToday:
-            core.transcriptsCoordinator.openToday()
-        case .pasteLastDictation:
-            core.transcriptsCoordinator.pasteLast()
-        case .dictationHistory:
-            core.transcriptsCoordinator.show(.dictationHistory)
-        case .scribeRecordings:
-            core.transcriptsCoordinator.show(.scribeRecordings)
+        case .kleioRecordings:
+            core.kleioCoordinator.show()
+        case .kleioStartMeeting:
+            core.kleioCoordinator.trigger(.startRecording(.meeting))
+        case .kleioStartMemo:
+            core.kleioCoordinator.trigger(.startRecording(.mic))
+        case .kleioStopRecording:
+            core.kleioCoordinator.trigger(.stopRecording)
+        case .kleioToggleRecording:
+            core.kleioCoordinator.trigger(.toggleRecording(.meeting))
+        case .kleioToggleDictation:
+            core.kleioCoordinator.trigger(.toggleDictation)
         }
     }
 

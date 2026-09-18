@@ -52,10 +52,12 @@ enum CommandID: String, CaseIterable, Sendable {
     case clipShareClipboard = "command:clipshare-clipboard"
     case clipShareRecent = "command:clipshare-recent"
 
-    case dictationHistoryToday = "command:dictation-history-today"
-    case pasteLastDictation = "command:paste-last-dictation"
-    case dictationHistory = "command:dictation-history"
-    case scribeRecordings = "command:scribe-recordings"
+    case kleioRecordings = "command:kleio-recordings"
+    case kleioStartMeeting = "command:kleio-start-meeting"
+    case kleioStartMemo = "command:kleio-start-memo"
+    case kleioStopRecording = "command:kleio-stop-recording"
+    case kleioToggleRecording = "command:kleio-toggle-recording"
+    case kleioToggleDictation = "command:kleio-toggle-dictation"
 
     var name: String {
         switch self {
@@ -108,10 +110,12 @@ enum CommandID: String, CaseIterable, Sendable {
         case .clipShareLatest: return "Share Latest Recording"
         case .clipShareClipboard: return "Share File on Clipboard"
         case .clipShareRecent: return "Recent ClipShare Uploads"
-        case .dictationHistoryToday: return "Open Today’s Dictation History"
-        case .pasteLastDictation: return "Paste Last Dictation"
-        case .dictationHistory: return "Dictation History"
-        case .scribeRecordings: return "Scribe Recordings"
+        case .kleioRecordings: return "Kleio Recordings"
+        case .kleioStartMeeting: return "Start Kleio Meeting Recording"
+        case .kleioStartMemo: return "Start Kleio Voice Memo"
+        case .kleioStopRecording: return "Stop Kleio Recording"
+        case .kleioToggleRecording: return "Toggle Kleio Recording"
+        case .kleioToggleDictation: return "Toggle Kleio Dictation"
         }
     }
 
@@ -165,10 +169,12 @@ enum CommandID: String, CaseIterable, Sendable {
         case .inbox: return "tray"
         case .clipShareLatest, .clipShareClipboard: return "square.and.arrow.up"
         case .clipShareRecent: return "video"
-        case .dictationHistoryToday: return "doc.text"
-        case .pasteLastDictation: return "mic"
-        case .dictationHistory: return "clock.arrow.circlepath"
-        case .scribeRecordings: return "waveform"
+        case .kleioRecordings: return "waveform"
+        case .kleioStartMeeting: return "record.circle"
+        case .kleioStartMemo: return "mic.circle"
+        case .kleioStopRecording: return "stop.circle"
+        case .kleioToggleRecording: return "record.circle.fill"
+        case .kleioToggleDictation: return "waveform.circle"
         }
     }
 

@@ -1,18 +1,17 @@
 import SwiftUI
 
-struct TranscriptsView: View {
-    @Environment(TranscriptsCoordinator.self) private var coordinator
+struct KleioRecordingsView: View {
+    @Environment(KleioCoordinator.self) private var coordinator
     @Environment(\.metrics) private var metrics
-    let entries: [TranscriptEntry]
-    let store: TranscriptStore
-    let source: TranscriptEntry.Source
+    let recordings: [KleioRecording]
+    let store: KleioStore
     let selection: Int
     let scroll: ScrollIntent
     let vm: PaletteState
     let openActions: () -> Void
 
-    private var selected: TranscriptEntry? {
-        entries.indices.contains(selection) ? entries[selection] : nil
+    private var selected: KleioRecording? {
+        recordings.indices.contains(selection) ? recordings[selection] : nil
     }
 
     var body: some View {
@@ -21,41 +20,45 @@ struct TranscriptsView: View {
                 Text(issue).font(metrics.typography.rowTrailing).foregroundStyle(Theme.Colors.textSecondary)
                     .padding(metrics.spacing.md)
             }
-            if entries.isEmpty {
-                EmptyResults(text: vm.query.isEmpty ? "No transcripts found" : "No matching transcripts")
+            if recordings.isEmpty {
+                EmptyResults(text: vm.query.isEmpty ? "No recordings found" : "No matching recordings")
             } else {
                 HStack(spacing: 0) {
                     list
                         .frame(width: metrics.size.clipboardListWidth)
                     Rectangle().fill(Theme.Colors.separator).frame(width: Theme.Size.hairline)
                     if let selected {
-                        TranscriptPreview(
-                            entry: selected, choosingRange: coordinator.segmentEntryID == selected.id
+                        KleioRecordingPreview(
+                            recording: selected, choosingRange: coordinator.segmentRecordingID == selected.id
                         ).id(selected.id)
                     }
                 }
             }
         }
-        .task(id: "\(source)-\(vm.isVisible)") {
-            guard vm.isVisible else { return }
-            await store.observe(source)
+        .task(id: vm.isVisible) {
+            if vm.isVisible {
+                await store.load()
+            } else {
+                store.release()
+                coordinator.segmentRecordingID = nil
+            }
         }
-        .onChange(of: vm.isVisible) {
-            if !vm.isVisible { coordinator.segmentEntryID = nil }
+        .onDisappear {
+            store.release()
+            coordinator.segmentRecordingID = nil
         }
-        .onDisappear { coordinator.segmentEntryID = nil }
     }
 
     private var list: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    SectionHeader(title: source == .dictation ? "Dictation History" : "Scribe Recordings", isFirst: true)
-                    ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                        TranscriptRow(entry: entry, selected: entry.id == selected?.id)
-                            .selectionFrame(entry.id == selected?.id)
+                    SectionHeader(title: "Kleio Recordings", isFirst: true)
+                    ForEach(Array(recordings.enumerated()), id: \.element.id) { index, recording in
+                        KleioRecordingRow(recording: recording, selected: recording.id == selected?.id)
+                            .selectionFrame(recording.id == selected?.id)
                             .contentShape(Rectangle())
-                            .onRowClick(select: { vm.selection = index }, activate: { coordinator.activate(entry) })
+                            .onRowClick(select: { vm.selection = index }, activate: { coordinator.copy(recording.text) })
                             .onRightClick {
                                 vm.selection = index
                                 openActions()
@@ -75,20 +78,18 @@ struct TranscriptsView: View {
     }
 }
 
-private struct TranscriptRow: View {
+private struct KleioRecordingRow: View {
     @Environment(\.metrics) private var metrics
-    let entry: TranscriptEntry
+    let recording: KleioRecording
     let selected: Bool
     @State private var hovered = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: metrics.spacing.xs) {
-            Text(entry.title).font(metrics.typography.rowTitle).lineLimit(2)
+            Text(recording.title).font(metrics.typography.rowTitle).lineLimit(2)
             HStack {
-                Text(entry.date, format: .dateTime.year().month().day().hour().minute().second())
-                if let duration = entry.duration {
-                    Text(Duration.seconds(duration).formatted(.time(pattern: .minuteSecond)))
-                }
+                Text(recording.date, format: .dateTime.year().month().day().hour().minute().second())
+                Text(Duration.seconds(recording.duration).formatted(.time(pattern: .minuteSecond)))
             }
             .font(metrics.typography.rowTrailing)
             .foregroundStyle(Theme.Colors.textSecondary)
@@ -104,10 +105,10 @@ private struct TranscriptRow: View {
     }
 }
 
-private struct TranscriptPreview: View {
-    @Environment(TranscriptsCoordinator.self) private var coordinator
+private struct KleioRecordingPreview: View {
+    @Environment(KleioCoordinator.self) private var coordinator
     @Environment(\.metrics) private var metrics
-    let entry: TranscriptEntry
+    let recording: KleioRecording
     let choosingRange: Bool
     @State private var firstSegment = 0
     @State private var lastSegment = 0
@@ -117,22 +118,22 @@ private struct TranscriptPreview: View {
             if choosingRange {
                 Stepper("First segment: \(firstSegment + 1)", value: $firstSegment, in: 0...lastSegment)
                 Stepper("Last segment: \(lastSegment + 1)", value: $lastSegment,
-                        in: firstSegment...max(0, entry.segments.count - 1))
+                        in: firstSegment...max(0, recording.segments.count - 1))
                 Button("Copy Range") {
-                    if let text = entry.text(in: firstSegment...lastSegment) { coordinator.copy(text) }
+                    if let text = recording.text(in: firstSegment...lastSegment) { coordinator.copy(text) }
                 }
             }
             ScrollView {
                 if choosingRange {
                     VStack(alignment: .leading, spacing: metrics.spacing.md) {
-                        ForEach(Array(entry.segments.enumerated()), id: \.offset) { index, segment in
+                        ForEach(Array(recording.segments.enumerated()), id: \.offset) { index, segment in
                             Text("\(index + 1). \(segment.text)")
                                 .foregroundStyle((firstSegment...lastSegment).contains(index)
                                     ? Theme.Colors.textPrimary : Theme.Colors.textSecondary)
                         }
                     }
                 } else {
-                    Text(entry.text.isEmpty ? "No transcript text" : entry.text)
+                    Text(recording.text.isEmpty ? "No transcript text" : recording.text)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
@@ -141,6 +142,6 @@ private struct TranscriptPreview: View {
         }
         .font(metrics.typography.rowTitle)
         .padding(metrics.spacing.lg)
-        .onAppear { lastSegment = max(0, entry.segments.count - 1) }
+        .onAppear { lastSegment = max(0, recording.segments.count - 1) }
     }
 }
