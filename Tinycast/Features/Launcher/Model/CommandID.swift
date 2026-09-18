@@ -52,6 +52,11 @@ enum CommandID: String, CaseIterable, Sendable {
     case clipShareClipboard = "command:clipshare-clipboard"
     case clipShareRecent = "command:clipshare-recent"
 
+    case dictationHistoryToday = "command:dictation-history-today"
+    case pasteLastDictation = "command:paste-last-dictation"
+    case dictationHistory = "command:dictation-history"
+    case scribeRecordings = "command:scribe-recordings"
+
     var name: String {
         switch self {
         case .aiChat: return "AI Chat"
@@ -103,6 +108,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .clipShareLatest: return "Share Latest Recording"
         case .clipShareClipboard: return "Share File on Clipboard"
         case .clipShareRecent: return "Recent ClipShare Uploads"
+        case .dictationHistoryToday: return "Open Today’s Dictation History"
+        case .pasteLastDictation: return "Paste Last Dictation"
+        case .dictationHistory: return "Dictation History"
+        case .scribeRecordings: return "Scribe Recordings"
         }
     }
 
@@ -156,6 +165,10 @@ enum CommandID: String, CaseIterable, Sendable {
         case .inbox: return "tray"
         case .clipShareLatest, .clipShareClipboard: return "square.and.arrow.up"
         case .clipShareRecent: return "video"
+        case .dictationHistoryToday: return "doc.text"
+        case .pasteLastDictation: return "mic"
+        case .dictationHistory: return "clock.arrow.circlepath"
+        case .scribeRecordings: return "waveform"
         }
     }
 

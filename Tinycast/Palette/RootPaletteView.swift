@@ -121,6 +121,10 @@ struct RootPaletteView: View {
         case .clipShareRecent:
             return ClipShareScreen(
                 coordinator: core.clipShareCoordinator, vm: vm, openActions: openActions)
+        case .dictationHistory, .scribeRecordings:
+            return TranscriptsScreen(
+                store: core.transcripts, coordinator: core.transcriptsCoordinator, vm: vm,
+                source: vm.mode == .dictationHistory ? .dictation : .scribe, openActions: openActions)
         }
     }
 

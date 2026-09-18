@@ -138,6 +138,8 @@ If a change touches anything in the right column, the harness on the left is man
 | `mcp-test` | `MCP/Model/` and `MCPSettingsStore` — JSON-RPC framing, handles, tool names, output flattening, trust, `@server` addressing |
 | `mcp-stdio-test` | `MCP/Service/` against a stub server — handshake, listing, calling, and every way one can go away |
 | `ports-test` | `Ports/Model/` parsing, pid/port deduplication, cwd fields and fuzzy filtering |
+| `transcripts-test` | `Transcripts/Model/`, LocalFlow Markdown, Scribe JSON, fuzzy search and segment ranges |
+| `transcripts-store-test` | Live LocalFlow updates, missing-folder recovery, Scribe reads and observer cancellation |
 
 The two harnesses that need a server to talk to bring their own: `Tests/ai-fixtures/codex-stub.js`
 and `mcp-stub.js`, each copied into a scratch directory and put in front of PATH so the locator finds

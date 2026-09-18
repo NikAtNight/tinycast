@@ -271,6 +271,14 @@ final class LauncherCoordinator {
             core.clipShareCoordinator.shareClipboard()
         case .clipShareRecent:
             core.clipShareCoordinator.show()
+        case .dictationHistoryToday:
+            core.transcriptsCoordinator.openToday()
+        case .pasteLastDictation:
+            core.transcriptsCoordinator.pasteLast()
+        case .dictationHistory:
+            core.transcriptsCoordinator.show(.dictationHistory)
+        case .scribeRecordings:
+            core.transcriptsCoordinator.show(.scribeRecordings)
         }
     }
 

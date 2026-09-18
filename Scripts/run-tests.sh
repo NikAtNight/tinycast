@@ -553,6 +553,9 @@ run slow codex-turn-test   Tinycast/Platform/AppPaths.swift \
                            Tinycast/Features/AI/Service/CodexAppServerClient.swift \
                            Tinycast/Platform/ExecutableLocator.swift \
                            Tinycast/Features/AI/Service/CodexTurnRunner.swift
+run transcripts-test     Tinycast/Features/Transcripts/Model/*.swift $L/SearchRelevance.swift
+run transcripts-store-test Tinycast/Features/Transcripts/Model/*.swift $L/SearchRelevance.swift \
+                           Tinycast/Features/Transcripts/Service/TranscriptStore.swift
 run installed-ai-test     Tinycast/Features/AI/Model/*.swift \
                           Tinycast/Features/AI/Service/AIProvider.swift \
                           Tinycast/Platform/AppPaths.swift \
