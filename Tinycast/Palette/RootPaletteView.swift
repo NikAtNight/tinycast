@@ -22,6 +22,7 @@ struct RootPaletteView: View {
     @Environment(UninstallSession.self) private var uninstall
     @Environment(QuicklinkStore.self) private var quicklinks
     @Environment(CustomCommandArgumentSession.self) private var customCommandArguments
+    @Environment(QuicklinkArgumentSession.self) private var quicklinkArguments
     @Environment(SnippetsStore.self) private var snippets
     @Environment(ExtensionManager.self) private var extensions
     @Environment(AppSettings.self) private var settings
@@ -63,6 +64,8 @@ struct RootPaletteView: View {
         case .customCommandArguments:
             return CustomCommandArgumentsScreen(
                 session: customCommandArguments, core: core, vm: vm)
+        case .quicklinkArguments:
+            return QuicklinkArgumentsScreen(session: quicklinkArguments, core: core, vm: vm)
         case .quicklinks:
             return QuicklinkListScreen(
                 store: quicklinks, core: core, vm: vm, openActions: openActions,
@@ -445,6 +448,9 @@ struct RootPaletteView: View {
                 if vm.mode != .customCommandArguments {
                     core.customCommandCoordinator.cancelCustomCommandArguments()
                 }
+                if vm.mode != .quicklinkArguments {
+                    core.quicklinkCoordinator.cancelQuicklinkArguments()
+                }
             }
             // `prepare` may change nothing, so this intent still snaps the scroll to the origin.
             .onChange(of: vm.resetToken) {
@@ -664,6 +670,13 @@ struct RootPaletteView: View {
                     .frame(width: metrics.size.headerIconSlot)
             }
             headerGutter(width: metrics.spacing.md)
+            // The form names the quicklink being filled, so the typed value reads as its argument.
+            if vm.mode == .quicklinkArguments, let quicklink = quicklinkArguments.quicklink {
+                QuicklinkArgumentsChip(
+                    quicklink: quicklink,
+                    icon: core.quicklinkCoordinator.argumentChipIcon(for: quicklink))
+                headerGutter(width: metrics.spacing.sm)
+            }
             // One structural position: a field inside a branch loses first responder when it flips.
             headerField
             if let accessory = headerAccessory {
@@ -820,6 +833,9 @@ struct RootPaletteView: View {
         if headerAccessory?.placement == .afterQuery, vm.mode != .ai { return "" }
         if vm.mode == .customCommandArguments {
             return customCommandArguments.prompt ?? vm.mode.placeholder
+        }
+        if vm.mode == .quicklinkArguments {
+            return quicklinkArguments.prompt ?? vm.mode.placeholder
         }
         // Inside a running command the search bar belongs to the extension.
         if vm.mode == .extensionCommand, let placeholder = extensionScreen.searchPlaceholder {

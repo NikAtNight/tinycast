@@ -4,6 +4,7 @@ import AppKit
 @MainActor
 final class QuicklinkCoordinator {
     private let store: QuicklinkStore
+    private let argumentSession: QuicklinkArgumentSession
     private let settings: AppSettings
     private let appIndex: AppIndex
     private let injector: TextInjector
@@ -25,6 +26,7 @@ final class QuicklinkCoordinator {
 
     init(
         store: QuicklinkStore,
+        argumentSession: QuicklinkArgumentSession,
         settings: AppSettings,
         appIndex: AppIndex,
         injector: TextInjector,
@@ -40,6 +42,7 @@ final class QuicklinkCoordinator {
         core: AppCore
     ) {
         self.store = store
+        self.argumentSession = argumentSession
         self.settings = settings
         self.appIndex = appIndex
         self.injector = injector
@@ -101,7 +104,14 @@ final class QuicklinkCoordinator {
             text: quicklink.link, context: context, userArguments: values, encoding: encoding)
         guard expansion.missingArguments.isEmpty else {
             pendingDefaultAppOverride = forcesDefault ? id : nil
-            promptForArguments(quicklink, values: values)
+            // Selected text is asked for only when it was unreadable and the setting says ask.
+            let asksSelection =
+                context.selection.isEmpty && settings.quicklinkSelectionFallback == .ask
+                && SnippetTemplateEngine.usesSelection(quicklink.link)
+                && values[Self.selectionArgument.name] == nil
+            promptForArguments(
+                quicklink, missing: expansion.missingArguments + (asksSelection ? [Self.selectionArgument] : []),
+                values: values)
             return
         }
         pendingDefaultAppOverride = nil
@@ -132,15 +142,33 @@ final class QuicklinkCoordinator {
         return arguments
     }
 
-    /// Search Quicklinks is the one argument surface, so a shortcut with values missing lands there.
-    private func promptForArguments(_ quicklink: Quicklink, values: [String: String]) {
-        paletteCoordinator.showPalette(mode: .quicklinks)
-        // After the show: `prepare` runs inside it and would clear everything set beforehand.
-        core.palette.selection = store.enabled.firstIndex(of: quicklink) ?? 0
-        for (name, value) in values {
-            core.palette.commandArguments[PaletteState.argumentKey(quicklink.entryID, name)] = value
-        }
-        core.palette.pendingArgumentEntryID = quicklink.entryID
+    /// The argument form is the one argument surface: the search field asks for each value in turn.
+    private func promptForArguments(
+        _ quicklink: Quicklink, missing: [SnippetTemplateEngine.MissingArgument],
+        values: [String: String]
+    ) {
+        argumentSession.begin(quicklink: quicklink, arguments: missing, values: values)
+        // Never a restored mode: this screen is always a fresh prompt, never a resumed one.
+        paletteCoordinator.showPalette(mode: .quicklinkArguments)
+    }
+
+    /// ↵ in the argument form. Returns false while more arguments remain.
+    @discardableResult
+    func submitQuicklinkArgument(_ value: String) -> Bool {
+        guard let values = argumentSession.submit(value), let quicklink = argumentSession.quicklink
+        else { return false }
+        argumentSession.cancel()
+        openQuicklink(id: quicklink.id, values: values)
+        return true
+    }
+
+    func cancelQuicklinkArguments() {
+        argumentSession.cancel()
+    }
+
+    /// The chip's glyph: the launcher row's icon when it has one, else the link's own symbol.
+    func argumentChipIcon(for quicklink: Quicklink) -> EntryIcon {
+        appIndex.quicklinkEntry(id: quicklink.entryID)?.iconSource ?? .symbol(quicklink.symbol)
     }
 
     private func performQuicklinkOpen(

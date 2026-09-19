@@ -19,6 +19,8 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     case customCommandArguments
     /// A Raycast extension command rendering into the palette.
     case extensionCommand
+    /// A quicklink collecting its `{argument}` values, one per search-field entry.
+    case quicklinkArguments
     case ports
 
     case repos
@@ -33,7 +35,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     /// One value at a time into the search field, so ↵ still acts with no rows to select.
-    var isArgumentForm: Bool { self == .customCommandArguments }
+    var isArgumentForm: Bool { self == .customCommandArguments || self == .quicklinkArguments }
     var systemImage: String {
         switch self {
         case .launcher: return "magnifyingglass"
@@ -49,6 +51,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .uninstall: return "trash"
         case .quicklinks: return Quicklink.sfSymbol
         case .customCommandArguments: return CustomCommand.sfSymbol
+        case .quicklinkArguments: return Quicklink.sfSymbol
         case .snippets: return "curlybraces"
         case .dictionary: return "book.closed"
         case .extensionCommand: return "puzzlepiece.extension"
@@ -79,6 +82,7 @@ enum PaletteMode: String, CaseIterable, Identifiable {
         case .dictionary: return "Look up a word…"
         // Replaced by the pending argument's name; only reached if the session vanished mid-render.
         case .customCommandArguments: return "Enter a value…"
+        case .quicklinkArguments: return "Enter a value…"
         // Replaced by the command's own `searchBarPlaceholder` whenever it declares one.
         case .extensionCommand: return "Search…"
         case .ports: return "Search ports, processes, and projects…"

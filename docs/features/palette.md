@@ -181,16 +181,17 @@ submits rather than activating a row. It has no rows, which is why `isArgumentFo
 ↵ pill drawn. Its state lives on `AppCore.customCommandArguments`, the way `.uninstall`'s target lives
 on `UninstallSession`, and leaving the mode cancels the pending run. A bare backspace steps back an
 argument before it falls through to the usual back step; Escape erases the half-typed answer
-first, and a second press hides the palette, ending the pending work with it. **Quicklinks used to be
-the other half of this pair and no longer are** — they collect their values in the header instead, so
-one surface asks for a row's arguments rather than two.
+first, and a second press hides the palette, ending the pending work with it. **Quicklinks are the
+other half of this pair**: `quicklinkArguments` is the same form over `QuicklinkArgumentSession`, with
+a chip before the search field naming the quicklink being filled (see
+[quicklinks.md](quicklinks.md#arguments)). Both modes answer `isArgumentForm`.
 
 ### Inline row arguments
 
-A selected row can declare arguments, and they are typed **in the header, beside the search field** —
-not on a screen of their own. Two features answer this way, each owning its own strip: an extension
-command through `ExtensionArgumentsAccessory`, a quicklink through `QuicklinkArgumentsAccessory`. The
-palette knows neither: `PaletteScreen.headerAccessory(at:focus:)` hands back a `PaletteHeaderAccessory`
+A selected row can declare arguments, and they are typed **in the header, beside the search field**,
+not on a screen of their own. An extension command answers this way through
+`ExtensionArgumentsAccessory`, and Talix's Log Time row through its own strip; a quicklink no longer
+does, it takes the argument form above. The palette knows none of them: `PaletteScreen.headerAccessory(at:focus:)` hands back a `PaletteHeaderAccessory`
 — a width, the field names in Tab order, the first field still owed a value, a menu for a field that is
 chosen rather than typed, and an opaque view. That costs the header its one simple rule, so it holds
 these invariants:
@@ -202,9 +203,12 @@ these invariants:
 - **`Placement` is what a strip does to the field beside it.** `.afterQuery` (root search) drops the
   prompt and squeezes the field to the typed text, so the chips follow what was typed and a glyph
   anchors them to the row. `.besideSearchField` (a screen of its own, where that row is already
-  listed) keeps the prompt and sizes the field to it, so an empty field reads "Search quicklinks…"
-  with the chip after it and no glyph repeating the row below. One measurement serves both: the
-  field's own text, which is the prompt when nothing is typed and "" under `.afterQuery`.
+  listed) keeps the prompt and sizes the field to it, with the chip after it and no glyph repeating
+  the row below. One measurement serves both: the field's own text, which is the prompt when nothing
+  is typed and "" under `.afterQuery`.
+- **A field draws no edge.** It continues the query in the search field's font; only the field with
+  the caret gets a faint fill, and a required field left empty warns in its prompt colour. A second
+  outlined box inside the search field read as a second control, which is what this replaced.
 - Argument focus is its own `@FocusState`, `argumentFocused`, keyed by argument name. Every way out
   of its ring — moving the selection, Escape, Tab past the last field, or an arrow at its edge — goes through
   `returnFocusToSearchField()`, because the row that owned those fields is about to stop being
@@ -223,9 +227,8 @@ these invariants:
 
 The typed values live on `PaletteState.commandArguments`, keyed by
 `PaletteState.argumentKey(entryID, name)`, and are cleared with the rest of the screen.
-`PaletteState.pendingArgumentEntryID` is how a *shortcut* reaches them: a quicklink opened with values
-still missing shows its own screen and names the row, and the header focuses that row's first empty
-field instead of the search field. It is set **after** `showPalette`, since `prepare` clears it.
+`PaletteState.pendingArgumentEntryID` names the row whose first empty field the header should focus
+instead of the search field, and is set **after** `showPalette`, since `prepare` clears it.
 
 The flat `selection` index is the single source of truth for highlight / activation and **must always
 match the visible row order**, including the card at index 0 when present — the calculator's (see

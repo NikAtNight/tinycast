@@ -26,6 +26,7 @@ struct QuicklinkTests {
         archiveMerge()
         archiveAcceptsAHandWrittenFile()
         raycastImport()
+        argumentForm()
 
         print("\(passes)/\(passes + failures) passed")
         if failures > 0 { exit(1) }
@@ -518,6 +519,39 @@ struct QuicklinkTests {
     }
 
     /// Writes a database the store didn't create, which is the only way to prove it reads one.
+    /// The argument form asks in declared order, skips seeded values, and steps back only through
+    /// what was typed here.
+    static func argumentForm() {
+        let session = QuicklinkArgumentSession()
+        let quicklink = Quicklink(
+            name: "Search", link: "https://example.com/{argument name=\"Site\"}/{argument name=\"Query\"}")
+        let arguments = SnippetTemplateEngine.declaredArguments(in: quicklink.link)
+        expect(!session.isActive, "idle until begun")
+        expect(session.submit("x") == nil, "submit without a request records nothing")
+
+        session.begin(quicklink: quicklink, arguments: arguments, values: ["Site": "docs"])
+        expect(session.isActive, "active once begun")
+        expect(session.current?.name == "Query", "a seeded value is never asked for")
+        expect(session.isLastArgument, "one left means the next submit opens")
+        expect(session.prompt == "Query…", "the prompt names the argument")
+        expect(session.progress.map(\.value) == ["docs", nil], "progress pairs each argument with its answer")
+        expect(session.retreat() == nil, "a seed is never stepped back into")
+
+        let done = session.submit("swift")
+        expect(done == ["Site": "docs", "Query": "swift"], "the last submit hands back every value")
+        expect(session.current == nil, "nothing pending once complete")
+
+        session.begin(quicklink: quicklink, arguments: arguments)
+        expect(session.current?.name == "Site", "asked in declared order")
+        expect(!session.isLastArgument, "two owed means the first submit only advances")
+        expect(session.submit("docs") == nil, "an early submit advances rather than opens")
+        expect(session.current?.name == "Query", "the second argument follows")
+        expect(session.retreat() == "docs", "stepping back returns the held value")
+        expect(session.current?.name == "Site", "and asks for it again")
+        session.cancel()
+        expect(!session.isActive && session.progress.isEmpty, "cancel forgets the request")
+    }
+
     @discardableResult
     static func sqlite(_ database: URL, _ sql: String) -> Set<String> {
         let task = Process()

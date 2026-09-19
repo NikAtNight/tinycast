@@ -400,6 +400,10 @@ final class AppIndex {
         return icon
     }
 
+    func quicklinkEntry(id: String) -> AppEntry? {
+        quicklinkEntries.first { $0.id == id }
+    }
+
     /// A deeplink with no chosen symbol shows the app that will open it, which is what the row does.
     private func quicklinkIcon(_ quicklink: Quicklink) -> EntryIcon? {
         guard quicklink.iconSymbol == nil else { return nil }

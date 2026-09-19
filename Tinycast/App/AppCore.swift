@@ -53,6 +53,7 @@ final class AppCore {
     let activationPolicy = ActivationPolicy()
     let uninstall = UninstallSession()
     let customCommandArguments = CustomCommandArgumentSession()
+    let quicklinkArguments = QuicklinkArgumentSession()
     let notesStore: NotesStore
     let extensions: ExtensionManager
     let chatHistory: ChatHistoryStore
@@ -89,7 +90,7 @@ final class AppCore {
         settingsCoordinator: settingsCoordinator,
         showMessage: { [unowned self] in self.showMessage($0) }, core: self)
     @ObservationIgnored private(set) lazy var quicklinkCoordinator = QuicklinkCoordinator(
-        store: quicklinks, settings: settings,
+        store: quicklinks, argumentSession: quicklinkArguments, settings: settings,
         appIndex: appIndex, injector: textInjector, hotKeys: hotKeys, favorites: favorites,
         visibility: visibility, ranking: launcherRanking, aliases: aliases,
         windowController: windowController,
@@ -683,7 +684,7 @@ final class AppCore {
             isRunningExtension: extensions.running != nil,
             isUninstalling: uninstall.isTrashing,
             isRecordingHotKey: hotKeys.recordingAction != nil,
-            isPromptingForArguments: customCommandArguments.isActive,
+            isPromptingForArguments: customCommandArguments.isActive || quicklinkArguments.isActive,
             isShowingDialog: isShowingDialog,
             isPaletteVisible: paletteCoordinator.isVisible)
     }

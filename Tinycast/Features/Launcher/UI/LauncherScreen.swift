@@ -134,13 +134,8 @@ struct LauncherScreen: PaletteScreen {
         -> PaletteHeaderAccessory?
     {
         guard let entry = entry(at: selection) else { return nil }
-        // A quicklink asks for its values in root search too, so the fallback never leaves it.
-        if entry.kind == .quicklink {
-            return QuicklinkArgumentsAccessory.make(
-                quicklink: quicklink(for: entry), core: core, vm: vm, focus: focus,
-                placement: .afterQuery, onOpenOptions: openArgumentOptions,
-                onSubmit: { activate(at: selection) })
-        }
+        // A quicklink asks for its values in the argument form, so its row carries no strip.
+        if entry.kind == .quicklink { return nil }
         return ExtensionArgumentsAccessory.make(
             entry: entry, coordinator: core.extensionCoordinator,
             values: { name in headerFieldBinding(entry: entry, name: name) },
@@ -155,10 +150,7 @@ struct LauncherScreen: PaletteScreen {
 
     /// The typed values for one row, stripped of blanks — what gets handed to the command.
     private func argumentValues(for entry: AppEntry) -> [String: String] {
-        if entry.kind == .quicklink {
-            guard let quicklink = quicklink(for: entry) else { return [:] }
-            return QuicklinkArgumentsAccessory.values(for: quicklink, core: core, vm: vm)
-        }
+        if entry.kind == .quicklink { return [:] }
         var values: [String: String] = [:]
         for argument in core.extensionCoordinator.commandArguments(for: entry) ?? [] {
             let typed = vm.commandArguments[PaletteState.argumentKey(entry.id, argument.name)] ?? ""

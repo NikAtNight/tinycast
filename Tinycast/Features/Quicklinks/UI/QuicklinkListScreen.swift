@@ -26,26 +26,12 @@ struct QuicklinkListScreen: PaletteScreen {
 
     func actions(at selection: Int) -> PopoverMenuContent? {
         guard let quicklink = quicklink(at: selection) else { return nil }
-        return QuicklinkActionsMenu.content(
-            quicklink: quicklink, core: core,
-            values: QuicklinkArgumentsAccessory.values(for: quicklink, core: core, vm: vm))
+        return QuicklinkActionsMenu.content(quicklink: quicklink, core: core, values: [:])
     }
 
     func activate(at selection: Int) {
         guard let quicklink = quicklink(at: selection) else { return }
-        core.quicklinkCoordinator.openQuicklink(
-            id: quicklink.id,
-            values: QuicklinkArgumentsAccessory.values(for: quicklink, core: core, vm: vm))
-    }
-
-    /// The header's argument fields, which is where a templated link collects its values.
-    func headerAccessory(
-        at selection: Int, focus: FocusState<String?>.Binding
-    ) -> PaletteHeaderAccessory? {
-        QuicklinkArgumentsAccessory.make(
-            quicklink: quicklink(at: selection), core: core, vm: vm, focus: focus,
-            placement: .besideSearchField, onOpenOptions: openArgumentOptions,
-            onSubmit: { activate(at: selection) })
+        core.quicklinkCoordinator.openQuicklink(id: quicklink.id)
     }
 
     /// ⌘↵ bypasses a saved "open with" app; without one there is nothing to bypass.
@@ -53,9 +39,7 @@ struct QuicklinkListScreen: PaletteScreen {
         guard let quicklink = quicklink(at: selection), quicklink.openWithBundleID != nil else {
             return false
         }
-        core.quicklinkCoordinator.openQuicklink(
-            id: quicklink.id, forcingDefaultApp: true,
-            values: QuicklinkArgumentsAccessory.values(for: quicklink, core: core, vm: vm))
+        core.quicklinkCoordinator.openQuicklink(id: quicklink.id, forcingDefaultApp: true)
         return true
     }
 

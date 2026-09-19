@@ -90,44 +90,34 @@ a Raycast import rewrites it to `{argument}` before the row is stored.
 
 ## Arguments
 
-A quicklink whose placeholders still need values doesn't open — it collects them **in the header,
-beside the search field**, as inline chips. There is no argument screen: the row that owns the values
-stays selected and visible the whole time, the way Raycast does it. The mechanics of the strip belong
-to the palette and are described in
-[palette.md](palette.md#inline-row-arguments); what quicklinks own is which fields appear and what an
-answer means.
+A quicklink whose placeholders still need values doesn't open. It asks for them **in the search field
+itself, one at a time**, on the `quicklinkArguments` screen: a chip before the field names the
+quicklink (its launcher icon and name), the field's prompt names the argument, ↵ records the value
+and moves to the next one, and the last ↵ opens. ⌫ on an empty field steps back to the previous
+answer, refilling the field; below the field the form lists every argument with what has been
+entered so far. This is the same shape a custom command uses (`CustomCommandArgumentSession`), so the
+palette treats both modes as `isArgumentForm`. There is no inline strip beside the query: a second
+field inside the search field read as a second control, and Raycast's launcher never shows one.
 
-`promptedArguments(for:)` is the one place that decides: the `{argument}`s the link declares, read
-straight off the template by `SnippetTemplateEngine.declaredArguments(in:)` — a pure parse, so nothing
-is expanded and no clipboard is read to draw a chip — plus the synthetic **"Selected Text"** field when
-the setting says ask. An argument with a `default=` answers itself and is never asked for.
-`QuicklinkArgumentsAccessory` turns that list into the strip; a field declaring `options=` is chosen
-from the palette's own menu rather than typed. **A chip marks nothing up front.** It draws like every
-other field until the caret has been in it and left it empty, and only then takes a red edge — a row
-you have not touched yet is not a row you owe anything on, which is how Raycast reads. The strip is
-given the row's identity, so that memory starts clean on the next quicklink. The strip is placed `.afterQuery` in root search — a
-glyph, then the chips, right after the typed text — and `.besideSearchField` on Search Quicklinks,
-where the field stays a filter with its prompt intact and the row below already carries the glyph.
+`QuicklinkArgumentSession` (`Service/`) is the form's state: the quicklink, the arguments it still
+owes, and the values so far. It is begun by `openQuicklink` itself, from the arguments the expansion
+reported missing, so nothing is expanded twice and no clipboard is read to draw a prompt. Values it is
+handed up front, such as a fallback row's query, are never asked for and never stepped back into. An
+argument with a `default=` answers itself and is never asked for. A field declaring `options=` shows
+its choices under the form and takes a typed value.
 
-**"Selected Text" is asked for up front, not after a failed read.** A chip cannot capture a selection,
-so the field appears whenever the link reads `{selection}` and the setting is `.ask`. Left empty it
-changes nothing — a selection the frontmost app *does* expose is still used — and only a typed value
-replaces it. That is the one behavioural difference from the two-screen form it replaced, and it is
-what lets the strip be drawn without capturing anything.
+**"Selected Text" is asked for only when it was unreadable.** When the link reads `{selection}`, the
+frontmost app exposed nothing, and the setting says ask, the form appends that one synthetic field
+after the link's own arguments. A selection the app *does* expose is used without asking.
 
 `openQuicklink(id:forcingDefaultApp:values:)` is the single funnel, and it captures the expansion
 context on **every** call rather than holding one across a session, so `{clipboard}`, `{selection}` and
 `{date}` are read at the moment the link opens. Reached from a global shortcut with the palette closed
 too: the frontmost app is recorded first, the way `runSystemAction` does, so the selection comes from
-the window the user was actually in.
-
-↵ with the chips filled opens straight away, wherever the row was reached from — root search carries
-its values through `LauncherScreen.argumentValues(for:)` into the same funnel, so a filled row never
-takes a detour. **Only a shortcut whose values are still missing lands on Search Quicklinks**, on that
-row, with its first empty chip focused — carried across by `PaletteState.pendingArgumentEntryID` and
-`commandArguments`, both set after the show because `prepare` clears them. One argument surface, whether
-the row is reached from root search, from Search Quicklinks or from a hotkey. A ⌘↵ "open with default
-app" override survives that trip on `pendingDefaultAppOverride`, keyed by the quicklink it applies to.
+the window the user was actually in. Whatever is still missing after expansion sends the row to the
+form, wherever it was reached from: root search, Search Quicklinks, the ⌘K menu, or a hotkey. One
+argument surface. A ⌘↵ "open with default app" override survives that trip on
+`pendingDefaultAppOverride`, keyed by the quicklink it applies to.
 
 **A launcher fallback fills the first argument.** Declaring a placeholder is exactly what puts a
 quicklink in the `Use “…” with…` section (see [launcher.md](launcher.md#fallbacks));
@@ -136,7 +126,7 @@ that was the only one owed. It is never the "Selected Text" field: that one is n
 is resolved by replacing the context, so seeding it there would expand to nothing.
 
 When a template reads the selection and the app in front exposes nothing readable, **Settings →
-Quicklinks** decides what happens: substitute the clipboard, or ask for it through the chip above.
+Quicklinks** decides what happens: substitute the clipboard, or ask for it through the form above.
 
 ## Opening
 

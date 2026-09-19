@@ -328,6 +328,13 @@ final class PaletteWindowController: NSObject, NSWindowDelegate {
                 core.palette.selection = 0
                 return true
             }
+            if core.palette.mode == .quicklinkArguments,
+                let previous = core.quicklinkArguments.retreat()
+            {
+                core.palette.query = previous
+                core.palette.selection = 0
+                return true
+            }
             if core.palette.mode == .extensionCommand {
                 core.extensionCoordinator.exitExtensionScreen()
                 return true
