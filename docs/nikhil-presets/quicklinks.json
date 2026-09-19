@@ -20,14 +20,6 @@
       "createdAt": "2026-09-18T19:15:01Z"
     },
     {
-      "id": "66BF23BE-5911-403E-8CFD-BEF7DB3ED07E",
-      "name": "Spotify search",
-      "link": "spotify:search:{argument name=\"Song or artist\"}",
-      "isEnabled": true,
-      "showsInRootSearch": true,
-      "createdAt": "2026-09-18T19:15:01Z"
-    },
-    {
       "id": "9F325466-C80F-486D-9093-9412A5B0F69E",
       "name": "GitHub code search",
       "link": "https://github.com/search?q={argument name=\"Query\"}&type=code",
