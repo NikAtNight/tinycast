@@ -4,6 +4,7 @@ import AppKit
 @MainActor
 final class LauncherCoordinator {
     private let ranking: LauncherRankingStore
+    private let recents: LauncherRecentsStore
     private let windowController: PaletteWindowController
     private let paletteCoordinator: PaletteCoordinator
     private let settingsCoordinator: SettingsCoordinator
@@ -24,6 +25,7 @@ final class LauncherCoordinator {
 
     init(
         ranking: LauncherRankingStore,
+        recents: LauncherRecentsStore,
         windowController: PaletteWindowController,
         paletteCoordinator: PaletteCoordinator,
         settingsCoordinator: SettingsCoordinator,
@@ -42,6 +44,7 @@ final class LauncherCoordinator {
         core: AppCore
     ) {
         self.ranking = ranking
+        self.recents = recents
         self.windowController = windowController
         self.paletteCoordinator = paletteCoordinator
         self.settingsCoordinator = settingsCoordinator
@@ -71,6 +74,8 @@ final class LauncherCoordinator {
         {
             ranking.record(itemKey: app.preferenceKey, query: searchQuery)
         }
+        // Recent is a list of things, so a query-driven row (whose text is the thing) never joins it.
+        if !CommandCatalog.isQueryDriven(app) { recents.record(itemKey: app.preferenceKey) }
         // Commands dispatch before the palette hides: mode-switching commands keep it open.
         if app.kind == .command {
             guard let id = CommandCatalog.command(for: app) else { return }

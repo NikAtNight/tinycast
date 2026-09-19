@@ -5,6 +5,7 @@ struct LauncherScreen: PaletteScreen {
     let appIndex: AppIndex
     let favorites: FavoritesStore
     let visibility: VisibilityStore
+    let recents: LauncherRecentsStore
     let core: AppCore
     let vm: PaletteState
     /// Sampled by `openActions`, so Restart and Quit can't move while the menu is up.
@@ -29,6 +30,8 @@ struct LauncherScreen: PaletteScreen {
     private let pinsFavorites: Bool
     /// How many of `results` are pinned favorites; zero unless the section shows.
     private let favoriteCount: Int
+    /// How many rows after the favorites are the Recent section; zero unless the query is empty.
+    private let recentCount: Int
     /// The `Use "…" with` section, below every result; empty unless something is typed.
     private let fallbacks: [(fallback: Fallback, entry: AppEntry)]
     /// Resolved in `init`: the palette indexes this several times per event, so it can't recompute.
@@ -36,6 +39,7 @@ struct LauncherScreen: PaletteScreen {
 
     init(
         appIndex: AppIndex, favorites: FavoritesStore, visibility: VisibilityStore,
+        recents: LauncherRecentsStore,
         currencyRates: CurrencyRateStore, core: AppCore, vm: PaletteState, running: Bool,
         meeting: MeetingEvent?, now: Date,
         openActions: @escaping () -> Void, openArgumentOptions: @escaping (String) -> Void,
@@ -44,6 +48,7 @@ struct LauncherScreen: PaletteScreen {
         self.appIndex = appIndex
         self.favorites = favorites
         self.visibility = visibility
+        self.recents = recents
         self.core = core
         self.vm = vm
         self.running = running
@@ -52,8 +57,9 @@ struct LauncherScreen: PaletteScreen {
         self.openArgumentOptions = openArgumentOptions
         self.scrollToFollow = scrollToFollow
 
-        var results = appIndex.orderedResults(
-            query: vm.query, visibility: visibility, favorites: favorites)
+        let sectioned = appIndex.orderedResults(
+            query: vm.query, visibility: visibility, favorites: favorites, recents: recents)
+        var results = sectioned.entries
         // A typed web address leads: nothing the index holds answers it better.
         if let browser = CommandCatalog.openInBrowser(for: vm.query), visibility.isVisible(browser) {
             results.insert(browser, at: 0)
@@ -74,6 +80,7 @@ struct LauncherScreen: PaletteScreen {
         self.showSections = pinsFavorites || AppEntry.Kind.named(by: vm.query) != nil
         self.pinsFavorites = pinsFavorites
         self.favoriteCount = pinsFavorites ? results.prefix(while: favorites.isFavorite).count : 0
+        self.recentCount = pinsFavorites ? sectioned.recentCount : 0
         if let calc {
             self.rows = [.calc(calc)] + entries
         } else if let color {
@@ -346,7 +353,9 @@ struct LauncherScreen: PaletteScreen {
 
     /// Re-read the order the change just invalidated; this warms the key the next render reads.
     private func reorderedResults() -> [AppEntry] {
-        appIndex.orderedResults(query: vm.query, visibility: visibility, favorites: favorites)
+        appIndex.orderedResults(
+            query: vm.query, visibility: visibility, favorites: favorites, recents: recents
+        ).entries
     }
 
     private func select(row index: Int) {
@@ -376,6 +385,7 @@ struct LauncherScreen: PaletteScreen {
             results: results,
             selectedRowID: row(at: selection)?.id,
             favoriteCount: favoriteCount,
+            recentCount: recentCount,
             showSections: showSections,
             scroll: scroll,
             card: leadCard,

@@ -309,11 +309,19 @@ final class AppIndex {
         let aliasRevision: Int
         let visibilityRevision: Int
         let favoritesRevision: Int
+        let recentsRevision: Int
+    }
+
+    /// The opening list's shape: favorites, then recents, then everything else in section order.
+    struct SectionedResults {
+        let entries: [AppEntry]
+        let favoriteCount: Int
+        let recentCount: Int
     }
 
     /// Repeated renders for the same query reuse the ranking instead of re-matching every frame.
     @ObservationIgnored private var matchMemo = Memo<MatchKey, [AppEntry]>()
-    @ObservationIgnored private var resultsMemo = Memo<ResultsKey, [AppEntry]>()
+    @ObservationIgnored private var resultsMemo = Memo<ResultsKey, SectionedResults>()
     /// Bumped whenever `apps` changes, so both memos above name the entry set they were built from.
     private var entriesRevision = 0
 
@@ -665,20 +673,39 @@ final class AppIndex {
 
     /// The launcher's ordered list: ranked matches minus hidden entries, favorites pinned first.
     func orderedResults(
-        query: String, visibility: VisibilityStore, favorites: FavoritesStore
-    ) -> [AppEntry] {
+        query: String, visibility: VisibilityStore, favorites: FavoritesStore,
+        recents: LauncherRecentsStore
+    ) -> SectionedResults {
         let q = query.trimmingCharacters(in: .whitespaces)
         let key = ResultsKey(
             query: q, entriesRevision: entriesRevision, rankingRevision: ranking.revision,
             aliasRevision: aliases.revision, visibilityRevision: visibility.revision,
-            favoritesRevision: favorites.revision)
+            favoritesRevision: favorites.revision, recentsRevision: recents.revision)
         return resultsMemo.value(for: key) {
             // Filtering stays downstream of `matches` so that memo is never keyed on hidden state.
             let base = matches(q).filter(visibility.isVisible)
-            guard q.isEmpty, !favorites.keys.isEmpty else { return base }
+            guard q.isEmpty else { return SectionedResults(entries: base, favoriteCount: 0, recentCount: 0) }
             let split = favorites.ordered(base)
-            return split.favorites + split.rest
+            let recent = Self.recentEntries(recents.keys, among: split.rest)
+            let recentKeys = Set(recent.map(\.preferenceKey))
+            let rest = split.rest.filter { !recentKeys.contains($0.preferenceKey) }
+            return SectionedResults(
+                entries: split.favorites + recent + rest,
+                favoriteCount: split.favorites.count, recentCount: recent.count)
         }
+    }
+
+    /// The Recent section: stored order, only what the list still holds, a favorite never twice.
+    nonisolated private static func recentEntries(_ keys: [String], among rest: [AppEntry]) -> [AppEntry] {
+        guard !keys.isEmpty else { return [] }
+        let byKey = Dictionary(rest.map { ($0.preferenceKey, $0) }, uniquingKeysWith: { first, _ in first })
+        var seen: Set<String> = []
+        var recent: [AppEntry] = []
+        for key in keys where recent.count < LauncherRecentsStore.sectionLimit {
+            guard seen.insert(key).inserted, let entry = byKey[key] else { continue }
+            recent.append(entry)
+        }
+        return recent
     }
 
     private func rank(_ q: String, limit: Int) -> [AppEntry] {

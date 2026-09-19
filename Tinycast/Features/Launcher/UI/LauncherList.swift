@@ -7,6 +7,8 @@ struct LauncherList: View {
     /// The flat row id the screen has selected, not an entry id: a fallback can repeat a result.
     let selectedRowID: String?
     let favoriteCount: Int
+    /// The Recent section's rows, right after the favorites; zero when nothing was launched yet.
+    var recentCount = 0
     let showSections: Bool
     /// Changes only when the list should scroll, so mouse selection never yanks it.
     let scroll: ScrollIntent
@@ -94,7 +96,8 @@ struct LauncherList: View {
         }
         var rows: [Row] = cardRows
         let favorites = results.prefix(favoriteCount)
-        let rest = results.dropFirst(favoriteCount)
+        let recent = results.dropFirst(favoriteCount).prefix(recentCount)
+        let rest = results.dropFirst(favoriteCount + recentCount)
         var grouped: [AppEntry.Kind: [AppEntry]] = [:]
         for app in rest { grouped[app.kind, default: []].append(app) }
         if !favorites.isEmpty {
@@ -103,6 +106,10 @@ struct LauncherList: View {
                 contentsOf: favorites.enumerated().map {
                     .app($1, slot: FavoriteSlots.digit(at: $0))
                 })
+        }
+        if !recent.isEmpty {
+            rows.append(.header("Recent"))
+            rows.append(contentsOf: recent.map { .app($0, slot: nil) })
         }
         // Publication order, so rows match the flat index.
         let kinds: [AppEntry.Kind] = [

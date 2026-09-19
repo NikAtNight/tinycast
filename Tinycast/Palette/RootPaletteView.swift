@@ -54,7 +54,7 @@ struct RootPaletteView: View {
         case .launcher:
             return LauncherScreen(
                 appIndex: appIndex, favorites: favorites, visibility: visibility,
-                currencyRates: currencyRates, core: core, vm: vm, running: selectionIsRunning,
+                recents: core.launcherRecents, currencyRates: currencyRates, core: core, vm: vm, running: selectionIsRunning,
                 meeting: core.calendarCoordinator.cardedMeeting, now: meetingClock.now,
                 openActions: openActions, openArgumentOptions: openArgumentOptions,
                 scrollToFollow: { scroll = ScrollIntent(kind: .follow) })
