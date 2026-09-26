@@ -68,11 +68,10 @@ final class LauncherCoordinator {
     func launch(
         _ app: AppEntry, searchQuery: String? = nil, arguments: [String: String] = [:]
     ) {
-        // A category listing is no search: learning it would rank the row under "s".
-        if let searchQuery, AppEntry.Kind.named(by: searchQuery) == nil,
-            !CommandCatalog.isQueryDriven(app)
-        {
-            ranking.record(itemKey: app.preferenceKey, query: searchQuery)
+        // A category word is no search for the row: learning it would rank the row under "s".
+        if !CommandCatalog.isQueryDriven(app) {
+            let term = searchQuery.flatMap { AppEntry.Kind.named(by: $0) == nil ? $0 : nil }
+            ranking.visit(itemKey: app.preferenceKey, query: term)
         }
         // Recent is a list of things, so a query-driven row (whose text is the thing) never joins it.
         if !CommandCatalog.isQueryDriven(app) { recents.record(itemKey: app.preferenceKey) }
@@ -99,7 +98,7 @@ final class LauncherCoordinator {
         }
         if app.kind == .customCommand {
             guard let id = CustomCommand.id(fromEntryID: app.id) else { return }
-            customCommandCoordinator.runCustomCommand(id: id)
+            customCommandCoordinator.runCustomCommand(id: id, values: arguments)
             return
         }
         if app.kind == .systemAction {
@@ -114,6 +113,12 @@ final class LauncherCoordinator {
             }
             guard let id = CustomWindowSize.id(fromEntryID: app.id) else { return }
             windowCommandCoordinator.runCustomWindowSize(id: id)
+            return
+        }
+        if app.kind == .windowRoom {
+            // The coordinator hides the palette itself: entering must not restore focus first.
+            guard let id = Room.id(fromEntryID: app.id) else { return }
+            core.roomCoordinator.enterRoom(id: id)
             return
         }
         if app.kind == .windowLayout {
@@ -155,7 +160,7 @@ final class LauncherCoordinator {
             let snippetID = String(app.id.dropFirst("snippet:".count))
             snippetCoordinator.expandSnippet(id: snippetID, target: previous)
         case .command, .quickAction, .customCommand, .systemAction, .windowCommand, .windowLayout,
-            .quicklink, .appleShortcut, .extensionCommand, .meeting:
+            .windowRoom, .quicklink, .appleShortcut, .extensionCommand, .meeting:
             break  // handled above
         }
     }
@@ -163,8 +168,11 @@ final class LauncherCoordinator {
     /// The one funnel a built-in command runs through, from a palette row or its global shortcut.
     func runCommand(_ id: CommandID) {
         switch id {
+        case .quickAI:
+            core.quickAICoordinator.show()
         case .aiChat:
-            core.aiChatCoordinator.showChat()
+            dismissPalette()
+            core.aiChatCoordinator.showWindow()
         case .fixGrammar:
             core.quickActionCoordinator.run(.fixGrammar)
         case .rewrite:
@@ -224,6 +232,10 @@ final class LauncherCoordinator {
         case .captureWindowLayout:
             dismissPalette()
             windowLayoutCoordinator.captureWindowLayout()
+        case .switchRoom:
+            core.roomCoordinator.showRooms()
+        case .createRoom:
+            core.roomCoordinator.createRoom()
         case .createQuicklink:
             dismissPalette()
             quicklinkCoordinator.editQuicklink(nil)

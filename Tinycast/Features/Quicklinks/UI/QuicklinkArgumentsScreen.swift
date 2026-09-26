@@ -9,6 +9,8 @@ struct QuicklinkArgumentsScreen: PaletteScreen {
     let vm: PaletteState
 
     var rows: [Row] { [] }
+    /// One value at a time into the search field, so ↵ still acts with no rows to select.
+    var actsWithoutRows: Bool { true }
 
     var primaryActionTitle: String { session.isLastArgument ? "Open Quicklink" : "Next" }
 

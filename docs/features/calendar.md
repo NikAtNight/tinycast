@@ -57,7 +57,7 @@ events as searchable launcher entries.
 - **`MeetingLink`** — the join link plus its `Provider` and the account whose calendar carried it.
   Ten named services, plus `.generic` for any other `http(s)` link the event carries.
 - **`MeetingEvent`** — one occurrence, flattened out of `EKEvent`.
-- **`UpcomingWindow`** — `agenda`, `carded`, `joinable` and `countdown`.
+- **`UpcomingWindow`** — `agenda`, `carded`, `joinable`, `countdown` and a row's `rowPill`.
 - **`MeetingDay`** — the Today / Tomorrow buckets, mirroring the clipboard's `DateBucket`.
 - **`MeetingSpan`** — how far ahead the store reads, and the phrasing that names those days.
 - **`MenuBarSummary`** — which event the menu bar carries, and for how long.
@@ -84,7 +84,9 @@ is a dial-in helper rather than a meeting.
 `zoommtg://zoom.us/join?confno=…` (carrying `pwd` when present) and a `teams.microsoft.com` link to
 `msteams:` plus its path and query. Nothing else is rewritten — the rest of the table has no
 unambiguous scheme, and guessing one would open the wrong thing. If no app claims the scheme, the
-plain `https` link opens instead.
+plain `https` link opens instead — in `meetingBrowserBundleID` when one is chosen under
+`Open Meeting Links In`, otherwise in the default browser. A chosen browser since uninstalled falls
+back to the default rather than failing the join, and the picker reads it as `Default Browser`.
 
 **A Google Meet link opens as the account whose calendar carried it.** Someone signed into several
 Google accounts otherwise lands on the account chooser, so `MeetingLink.webURL` appends
@@ -127,9 +129,11 @@ nothing ticking.
 
 ## Commands
 
-All five leave the launcher when the feature is off **or** when "Show in launcher" is, through
-`CalendarCoordinator.applyEnabled`, the `applyQuicklinksPresence` twin. Their shortcuts, the join
-card and the menu bar are unaffected: only launcher search is.
+All five leave the launcher when the feature is off, through `CalendarCoordinator.applyEnabled`.
+"Show in launcher" takes out only the individual meeting entries, the way Custom Commands' switch
+hides only its section: `My Schedule` stays findable, so meetings are one search away rather than
+on the root. Each command's own checkbox hides it from search; its shortcut, the join card and the
+menu bar are unaffected by either.
 
 The Calendar settings can limit the individual meeting entries in launcher search to the next 1, 3,
 or 5 meetings, or leave them all visible. New installations default to the next 3 meetings so a busy
@@ -194,11 +198,29 @@ which scopes Observation to the label instead of re-running either scene. It fal
 glyph when nothing is due, so the calendar item never disappears out from under the user. In **Meeting
 Title** mode, once no event remains today it instead reads `No upcoming events`.
 
-`CalendarMenuBarMenu` lists calendar actions only — `Join <title>` and `Open in Calendar...` for the
-displayed event, then `My Schedule` and `Calendar Settings...` — so the two menus never repeat each
-other. `Join` is absent for a linkless appointment rather than opening Calendar under a name that
+**Hide when there are no upcoming events** instead takes the item out whenever it would show the bare
+glyph or that placeholder — whenever `menuBarEvent` is nil — so it follows `Show Upcoming Events`,
+`Only show events with meetings` and `Hide Current Event` rather than adding a rule of its own: on
+*Today* it leaves after the day's last event, on a minutes lead it also leaves between meetings. The
+scene has to read that fact, so `CalendarCoordinator.hasMenuBarEvent` is **stored and written only
+when it flips** — a derived read would re-run `TinycastApp.body`, and the main menu with it, on every
+minute tick. SwiftUI writes
+`false` back through `isInserted` when it removes the item itself, so the insertion setter ignores a
+removal while the item is hidden for being empty: only a drag-out turns the display to `.disabled`.
+
+`CalendarMenuBarMenu` lists calendar actions only — `Join <title>`, `Open in Calendar...` and
+`Dismiss` for the displayed event, then `My Schedule` and `Calendar Settings...` — so the two menus
+never repeat each other. `Join` is absent for a linkless appointment rather than opening Calendar under a name that
 lies. **A bare click never joins**: the menu bar is not a button, and a mis-click there would open a
 call.
+
+`Dismiss` takes the displayed occurrence out of the menu bar, and `MenuBarSummary.event` filters it
+out exactly as it filters a lapsed one — so the next event inside its own lead takes the space with
+no second rule, and with nothing behind it the item falls back to the glyph or leaves under **Hide
+when there are no upcoming events**. The set lives on `CalendarCoordinator` and lasts the launch, the
+way `autoJoined` does: a dismissal is a reaction to what is on screen now, not a preference worth
+persisting, and the ids are pruned against the store so the set cannot grow. It is deliberately per
+occurrence rather than per series — dismissing today's standup says nothing about tomorrow's.
 
 ## Auto join and the preview
 
@@ -238,7 +260,8 @@ defaults to on. Holidays and Birthdays are what people switch off.
 
 `autoJoinMeetings` and `cameraPreview` join `calendarEnabled` in
 `SettingsBackupCoverage.deliberatelyExcluded`: one arms the app to open links unattended and the
-other turns on the camera, and an import must grant neither. The menu-bar settings carry over
+other turns on the camera, and an import must grant neither. `meetingBrowser` is excluded too: it names an
+app installed on this Mac, which another Mac may not have. The menu-bar settings carry over
 normally, and so does `calendarIncludesTomorrow`: it narrows what is read rather than widening what
 can be reached.
 

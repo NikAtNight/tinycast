@@ -20,21 +20,24 @@ struct QuickActionsSettingsView: View {
         Form {
             Section {
                 Toggle(isOn: enabledBinding) {
-                    SettingsRowTitle(.quickActionsQuickActions, "Enable Quick Actions")
-                    Text(
-                        "Act on the text you have selected in any app. Nothing is read until you "
-                            + "press a shortcut.")
+                    SettingsFeatureToggleLabel(
+                        anchor: .quickActionsQuickActions, title: "Enable Quick Actions",
+                        subtitle: "Act on selected text. Nothing is read until you press a shortcut.")
                 }
                 if appSettings.quickActionsEnabled, !isTrusted {
                     // Every shortcut fails without it; better said here than found one press later.
-                    SettingsRow(
-                        title: "Accessibility permission required",
-                        subtitle: "Tinycast can't read your selection until it is granted."
-                    ) {
+                    HStack(alignment: .center, spacing: Theme.Spacing.lg) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(Theme.Colors.destructive)
+                            .foregroundStyle(.orange)
                             .frame(width: Theme.Size.settingsRowIcon)
-                    } trailing: {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                            Text("Accessibility permission required")
+                                .foregroundStyle(.orange)
+                            Text("Needed to read your selection.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: Theme.Spacing.lg)
                         Button("Open System Settings") { Permissions.openAccessibilitySettings() }
                     }
                 }
@@ -110,13 +113,9 @@ struct QuickActionsSettingsView: View {
         } header: {
             SettingsSectionHeader(.quickActionsActions)
         } footer: {
-            Text(
-                "Replace puts the result straight into your document — undo in the app you were in "
-                    + "brings it back. Preview shows it in a panel first. The checkbox lists the "
-                    + "action in the launcher; its shortcut works either way."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Replace writes into your document, and undo restores it. Preview shows a panel first.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -161,6 +160,7 @@ struct QuickActionsSettingsView: View {
         Toggle("", isOn: launcherBinding(entry))
             .labelsHidden()
             .toggleStyle(.checkbox)
+            .launcherVisibilityHelp()
             .accessibilityLabel("Show \(title) in launcher")
     }
 
@@ -171,22 +171,18 @@ struct QuickActionsSettingsView: View {
                 select: store.select,
                 modelLabel: {
                     SettingsRowTitle(.quickActionsModel, "Model")
-                    Text("Used by every action without a model of its own, except Translate.")
+                    Text("Unless an action sets its own.")
                 },
                 effortLabel: {
                     SettingsRowTitle(.quickActionsModel, "Reasoning effort")
-                    Text("Applied when the selected model supports reasoning effort.")
                 }
             )
         } header: {
             SettingsSectionHeader(.quickActionsModel)
         } footer: {
-            Text(
-                "Separate from chat's model on purpose: a shortcut you press all day should not "
-                    + "bill an API every time. Apple Intelligence runs on this Mac for nothing."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Separate from AI Chat's, so frequent use needn't bill an API.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -199,17 +195,13 @@ struct QuickActionsSettingsView: View {
                 }
             } label: {
                 SettingsRowTitle(.quickActionsTranslate, "Translate to")
-                Text("The panel can still translate into another language once it is open.")
             }
         } header: {
             SettingsSectionHeader(.quickActionsTranslate)
         } footer: {
-            Text(
-                "Translation uses Apple's own translator on this Mac, so it costs nothing and "
-                    + "reaches no provider. A language downloads the first time you use it."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Apple's translator, on this Mac. A language downloads on first use.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 

@@ -16,11 +16,13 @@ enum SettingsBackupCoverage {
         "popToRootSeconds": .popToRootTimeout,
         "escapeKeyBehavior": .escapeKeyBehavior,
         "appearance": .appearance,
+        "calcNumberStyle": .calcNumberStyle,
         "interfaceSize": .interfaceSize,
-        "paletteTransparency": .paletteTransparency,
         "compactMode": .compactMode,
         "showFavoritesInCompactMode": .showFavoritesInCompactMode,
         "searchScopes": .searchScopes,
+        "launcherShowsSuggestions": .launcherShowsSuggestions,
+        "rootSearchSensitivity": .rootSearchSensitivity,
         "openOnCursorScreen": .openOnCursorScreen,
         "paletteDraggable": .paletteDraggable,
         "fileSearchEnabled": .fileSearchEnabled,
@@ -40,6 +42,7 @@ enum SettingsBackupCoverage {
         "windowGap": .windowGap,
         "windowCycle": .windowCycle,
         "windowLayoutsShowInLauncher": .windowLayoutsShowInLauncher,
+        "windowRoomsShowInLauncher": .windowRoomsShowInLauncher,
         "quicklinksEnabled": .quicklinksEnabled,
         "quicklinksShowInLauncher": .quicklinksShowInLauncher,
         "quicklinkOpensNewWindow": .quicklinkOpensNewWindow,
@@ -55,6 +58,7 @@ enum SettingsBackupCoverage {
         "menuBarEvents": .menuBarEvents,
         "calendarMenuBarDisplay": .calendarMenuBarDisplay,
         "menuBarLinkedEventsOnly": .menuBarLinkedEventsOnly,
+        "calendarMenuBarHidesWhenEmpty": .calendarMenuBarHidesWhenEmpty,
         "hideCurrentEvent": .hideCurrentEvent,
         "supportReminders": .supportReminders
     ]
@@ -82,8 +86,12 @@ enum SettingsBackupCoverage {
             "Doubles as consent to run third-party JavaScript; an import must not switch it on.",
         AppSettingsKey.palettePosition.rawValue:
             "Machine-local geometry: every entry names a display this Mac has, and no other one.",
+        AppSettingsKey.paletteExpandedCenterDisplays.rawValue:
+            "Machine-local geometry: every entry names a display this Mac has, and no other one.",
         AppSettingsKey.autoSwitchInputSource.rawValue:
             "Names a keyboard input source installed on this Mac; another Mac may not have it.",
+        AppSettingsKey.meetingBrowser.rawValue:
+            "Names a browser installed on this Mac; another Mac may not have it.",
         AppSettingsKey.calendarEnabled.rawValue:
             "Doubles as consent to read your calendar; an import must not grant calendar access.",
         AppSettingsKey.autoJoinMeetings.rawValue:
@@ -117,6 +125,9 @@ enum SettingsBackupCoverage {
         AppSettingsKey.aiNewChatAfter.rawValue:
             "Paces the same decision as the setting it accompanies, against conversations that stay "
             + "on the Mac that had them.",
+        AppSettingsKey.aiToolRounds.rawValue:
+            "Decides how much a tool-driven reply may spend on this Mac's own connections; no other "
+            + "AI setting travels, and an import must not raise a spending limit unasked.",
         AppSettingsKey.mcpEnabled.rawValue:
             "Doubles as consent to run third-party MCP servers, one of which is a local process; a "
             + "flag that grants a capability is never carried by a backup.",

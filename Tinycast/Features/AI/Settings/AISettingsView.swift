@@ -22,8 +22,9 @@ struct AISettingsView: View {
         return Form {
             Section {
                 Toggle(isOn: $appSettings.aiEnabled) {
-                    SettingsRowTitle(.aiAI, "Enable AI")
-                    Text("Chat with the model you choose; nothing is loaded or sent until it is on.")
+                    SettingsFeatureToggleLabel(
+                        anchor: .aiAI, title: "Enable AI",
+                        subtitle: "Nothing is loaded or sent while it is off.")
                 }
                 SettingsRow(
                     title: "Providers", subtitle: providerSummary, anchor: .aiProviders
@@ -77,11 +78,9 @@ struct AISettingsView: View {
                 select: { $0.map(settings.select) },
                 modelLabel: {
                     SettingsRowTitle(.aiDefault, "Default model")
-                    Text("Used by Tinycast features unless they ask you to choose another model.")
                 },
                 effortLabel: {
                     SettingsRowTitle(.aiDefault, "Reasoning effort")
-                    Text("Applied when the default model supports reasoning effort.")
                 }
             )
         } header: {
@@ -95,11 +94,11 @@ struct AISettingsView: View {
 
     private var defaultModelFooter: String {
         if settings.defaultModel?.isOnDevice == true {
-            return "Apple Intelligence runs on this Mac. No key, no account, and nothing leaves it."
+            return "Apple Intelligence runs on this Mac. Nothing leaves it."
         }
         return settings.defaultModel == nil
             ? "Turn on Apple Intelligence, or add a provider above."
-            : "Tinycast contacts only the selected provider when an AI feature runs."
+            : "Only the selected provider is contacted."
     }
 
     /// Why the on-device route is missing from the picker, or `nil` when it is there.
@@ -126,15 +125,18 @@ struct AISettingsView: View {
         return Section {
             Toggle(isOn: $settings.webSearchEnabled) {
                 SettingsRowTitle(.aiChat, "Web search")
+                Text("Codex and OpenRouter only. Prompts go to a search engine.")
+            }
+            Picker(selection: $settings.toolRounds) {
+                ForEach(AIToolRounds.allCases) { Text($0.title).tag($0) }
+            } label: {
+                SettingsRowTitle(.aiChat, "Tool call rounds")
                 Text(
-                    "Sends prompts on to a search engine when the route offers one — Codex and OpenRouter.")
+                    "A reply stops after this many; Unlimited runs until Stop. "
+                        + "API connections, Codex and Claude.")
             }
         } header: {
             SettingsSectionHeader(.aiChat)
-        } footer: {
-            Text("Images pasted into the chat go to any model that accepts them; others never see one.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
@@ -144,33 +146,28 @@ struct AISettingsView: View {
             Picker(selection: $settings.opensTo) {
                 ForEach(AIOpensTo.allCases) { Text($0.title).tag($0) }
             } label: {
-                SettingsRowTitle(.aiConversations, "Opens to")
-                Text("What summoning AI Chat lands on.")
+                SettingsRowTitle(.aiConversations, "Quick AI opens to")
             }
             if settings.opensTo == .recent {
                 Picker(selection: $settings.newChatAfter) {
                     ForEach(AINewChatAfter.allCases) { Text($0.title).tag($0) }
                 } label: {
                     SettingsRowTitle(.aiConversations, "Start a new conversation after")
-                    Text("Idle this long and the next summon starts fresh instead.")
                 }
             }
             Picker(selection: $settings.retention) {
                 ForEach(AIRetention.allCases) { Text($0.title).tag($0) }
             } label: {
                 SettingsRowTitle(.aiConversations, "Keep conversations")
-                Text("Older conversations are deleted permanently.")
+                Text("Older ones are deleted, except pinned chats.")
             }
             .onChange(of: settings.retention) { core.aiChatCoordinator.applyRetention() }
         } header: {
             SettingsSectionHeader(.aiConversations)
         } footer: {
-            Text(
-                "Conversations stay on this Mac. Nothing here is carried in a settings backup — which "
-                    + "chats a Mac keeps is that Mac's business."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Conversations stay on this Mac, outside settings backups.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -179,19 +176,16 @@ struct AISettingsView: View {
         return Section {
             Toggle(isOn: $settings.systemPromptEnabled) {
                 SettingsRowTitle(.aiSystemPrompt, "Send a system prompt")
-                Text("Off sends nothing ahead of your message, not even what Tinycast says about itself.")
+                Text("Off also skips Tinycast's own prompt.")
             }
             SystemPromptEditor(text: $settings.systemPrompt)
                 .settingsEnabled(settings.systemPromptEnabled)
         } header: {
             SettingsSectionHeader(.aiSystemPrompt)
         } footer: {
-            Text(
-                "Your text is sent ahead of every message in every chat, after what Tinycast "
-                    + "already tells the model about itself. Both are billed again on each turn."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Sent before every message, after Tinycast's own. Both are billed each turn.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -263,12 +257,9 @@ struct AISettingsView: View {
         } header: {
             SettingsSectionHeader(.aiInstalledAI)
         } footer: {
-            Text(
-                "Tinycast uses the Codex, Claude, Grok, OpenCode and Cursor commands already installed "
-                    + "and signed in on this Mac. Tinycast never stores or asks for their API keys."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Uses the command-line tools signed in on this Mac. Their keys are never stored.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -479,12 +470,9 @@ struct AISettingsView: View {
         } header: {
             SettingsSectionHeader(.aiAPIConnections)
         } footer: {
-            Text(
-                "OpenAI, Claude, Gemini and OpenRouter are presets. Custom OpenAI-compatible "
-                    + "endpoints are supported too. API keys stay in your login Keychain."
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("Presets or any OpenAI-compatible endpoint. Keys stay in your login Keychain.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -587,7 +575,11 @@ struct AISettingsView: View {
         var parts: [String] = []
         if let version = status.version { parts.append("Version " + version) }
         parts.append(modelCount(status.models))
-        if let caveat = kind.isolationCaveat { parts.append(caveat) }
+        if let caveat = kind.isolationCaveat(
+            hasManagedMCPPolicy: InstalledAIManager.hasManagedMCPPolicy)
+        {
+            parts.append(caveat)
+        }
         return parts.joined(separator: " · ")
     }
 

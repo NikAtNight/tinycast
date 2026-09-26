@@ -14,27 +14,31 @@ struct SnippetsSettingsView: View {
             FeatureSwitchSection(
                 anchor: .snippetsSnippets,
                 enableTitle: "Enable snippets",
-                enableSubtitle:
-                    "Reusable Markdown templates, expanded from the launcher or a typed keyword.",
-                launcherSubtitle: "Find your snippets in launcher search.",
+                enableSubtitle: "Expand templates from the launcher or by keyword.",
                 // Enabling is also keyword-expansion consent, so it uses the confirming setter.
                 isEnabled: Binding(
                     get: { settings.snippetsEnabled },
                     set: { core.snippetCoordinator.setSnippetsEnabled($0) }),
-                showsInLauncher: $settings.snippetsShowInLauncher)
+                showsInLauncher: $settings.snippetsShowInLauncher,
+                showsIcon: true,
+                showsHeader: false)
 
             if settings.snippetsEnabled, core.snippetListener.status == .needsAccessibility {
                 Section {
                     LabeledContent {
                         Button("Grant Access…") { Permissions.openAccessibilitySettings() }
                     } label: {
-                        Label(
-                            "Keyword expansion needs the Accessibility permission.",
-                            systemImage: "exclamationmark.triangle"
-                        )
-                        .foregroundStyle(.orange)
-                        Text(
-                            "The same grant pasting uses. Launcher search keeps working meanwhile.")
+                        HStack(alignment: .center, spacing: Theme.Spacing.lg) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                                .frame(width: SettingsListMetrics.iconSize)
+                            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                                Text("Keyword expansion needs Accessibility access")
+                                    .foregroundStyle(.orange)
+                                Text("Launcher search still works.")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
             }
@@ -86,7 +90,6 @@ struct SnippetsSettingsView: View {
                 Button("Add…") { editor = SnippetEditRequest(record: nil) }
             } label: {
                 SettingsRowTitle(.snippetsLibrary, "New Snippet")
-                Text("Give the snippet a searchable name and an optional expansion keyword.")
             }
 
             LabeledContent {
@@ -94,7 +97,7 @@ struct SnippetsSettingsView: View {
                     .accessibilityHint("Reveals this Tinycast channel’s snippets folder in Finder.")
             } label: {
                 SettingsRowTitle(.snippetsLibrary, "Snippets Folder")
-                Text("Plain Markdown files in this channel’s Application Support folder.")
+                Text("Plain Markdown files.")
             }
         } header: {
             SettingsSectionHeader(.snippetsLibrary)
@@ -180,6 +183,8 @@ private struct SnippetSettingsRow: View {
     var body: some View {
         SettingsRow(title: record.snippet.name, subtitle: metadata) {
             Image(systemName: "doc.text")
+                .font(.system(size: Theme.Size.settingsRowIcon - Theme.Spacing.xs))
+                .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
         } trailing: {
             Button(action: onEdit) {
                 Image(systemName: "pencil")

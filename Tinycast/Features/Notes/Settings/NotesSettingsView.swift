@@ -8,21 +8,25 @@ struct NotesSettingsView: View {
         return Form {
             Section {
                 Toggle(isOn: $settings.notesEnabled) {
-                    SettingsRowTitle(.notesNotes, "Enable Notes")
-                    Text("Keep plain Markdown notes in a floating editor, loaded only when needed.")
+                    SettingsFeatureToggleLabel(
+                        anchor: .notesNotes, title: "Enable Notes",
+                        subtitle: "Plain Markdown in a floating editor.")
                 }
+            }
+            .settingsAnchor(.notesNotes)
+
+            Section {
                 Toggle(isOn: $settings.notesRendersMarkdown) {
-                    SettingsRowTitle(.notesNotes, "Render Markdown")
-                    Text("Show formatting as you write. The line you are editing shows its Markdown.")
+                    SettingsRowTitle(.notesOptions, "Render Markdown")
+                    Text("Formats as you type.")
                 }
                 .settingsEnabled(settings.notesEnabled)
                 Toggle(isOn: $settings.notesShowsFormattingBar) {
-                    SettingsRowTitle(.notesNotes, "Show Formatting Bar")
-                    Text("Buttons for headings, styles and lists under the note.")
+                    SettingsRowTitle(.notesOptions, "Show Formatting Bar")
                 }
                 .settingsEnabled(settings.notesEnabled && settings.notesRendersMarkdown)
             } header: {
-                SettingsSectionHeader(.notesNotes)
+                SettingsSectionHeader(.notesOptions)
             }
 
             FeatureCommandsSection(owner: .notes, anchor: .notesCommands)

@@ -25,9 +25,11 @@ struct CalendarTests {
         cardWindow()
         chordFallsBackWiderThanTheCard()
         countdownStrings()
+        rowPills()
         dayBuckets()
         readSpan()
         menuBarWindow()
+        menuBarDismissal()
         menuBarFiltering()
         menuBarToday()
         menuBarTitles()
@@ -270,6 +272,38 @@ struct CalendarTests {
             "a meeting that is over is not offered")
     }
 
+    static func rowPills() {
+        var calendar = Self.calendar
+        calendar.locale = Locale(identifier: "en_US")
+        let start = date(year: 2026, month: 9, day: 23, hour: 17)
+        let meeting = event(id: "review", starting: start, minutes: 30)
+        func pill(_ offset: TimeInterval) -> UpcomingWindow.RowPill? {
+            UpcomingWindow.rowPill(
+                for: meeting, now: start.addingTimeInterval(offset), calendar: calendar)
+        }
+        expect(
+            pill(-60 * 60) == .init(text: "in 60 min", isImminent: true),
+            "exactly an hour out is imminent")
+        expect(
+            pill(-3 * 60 * 60) == .init(text: "in 3 hr", isImminent: false),
+            "later today counts down in hours")
+        expect(
+            pill(-18 * 60 * 60) == .init(text: "Wed, Sep 23", isImminent: false),
+            "a meeting tomorrow names its date")
+        expect(
+            pill(-40 * 60)?.text == "in 40 min", "inside the hour a countdown beats the date")
+        expect(pill(0)?.text == "Now", "the start reads as Now")
+        expect(pill(29 * 60) == .init(text: "Now", isImminent: true), "a meeting under way stays Now")
+        expect(pill(30 * 60) == nil, "a finished meeting earns no pill")
+
+        let lateNight = date(year: 2026, month: 9, day: 23, hour: 23, minute: 30)
+        let pastMidnight = event(id: "late", starting: lateNight.addingTimeInterval(40 * 60))
+        expect(
+            UpcomingWindow.rowPill(for: pastMidnight, now: lateNight, calendar: calendar)?.text
+                == "in 40 min",
+            "a meeting just past midnight still counts down")
+    }
+
     static func countdownStrings() {
         let start = at(60)
         expect(
@@ -345,6 +379,32 @@ struct CalendarTests {
         expect(
             automatic.event(from: [meeting, next], now: start)?.id == "next",
             "when the current one hides, the next inside its lead time takes the space")
+    }
+
+    static func menuBarDismissal() {
+        let meeting = event(id: "standup", start: 60, minutes: 30)
+        let next = event(id: "next", start: 62)
+        let now = at(60).addingTimeInterval(-60)
+        expect(
+            automatic.event(from: [meeting, next], now: now, dismissed: [])?.id == "standup",
+            "nothing dismissed leaves the earliest event in the menu bar")
+        expect(
+            automatic.event(from: [meeting, next], now: now, dismissed: ["standup"])?.id == "next",
+            "dismissing the displayed event hands the space to the next one inside its lead")
+        expect(
+            automatic.event(from: [meeting], now: now, dismissed: ["standup"]) == nil,
+            "with nothing behind it the menu bar clears instead")
+        expect(
+            automatic.event(from: [meeting, next], now: now, dismissed: ["next"])?.id == "standup",
+            "dismissing an event that is not displayed leaves the displayed one alone")
+        expect(
+            automatic.event(from: [meeting, next], now: now, dismissed: ["standup", "next"]) == nil,
+            "dismissing both clears the menu bar")
+
+        let later = at(62).addingTimeInterval(-60)
+        expect(
+            automatic.event(from: [meeting, next], now: later, dismissed: ["standup"])?.id == "next",
+            "a dismissal is per occurrence, so the next event still arrives on its own lead")
     }
 
     static func menuBarFiltering() {
@@ -558,7 +618,7 @@ struct CalendarTests {
             id: id, title: id, start: at(minutes),
             end: at(minutes).addingTimeInterval(TimeInterval(duration * 60)),
             isAllDay: isAllDay, isDeclined: isDeclined, calendarID: "cal", calendarName: "Work",
-            calendarItemID: id, link: link)
+            calendarColor: nil, calendarItemID: id, link: link)
     }
 
     static func event(
@@ -569,7 +629,7 @@ struct CalendarTests {
             id: id, title: id, start: start,
             end: start.addingTimeInterval(TimeInterval(duration * 60)),
             isAllDay: false, isDeclined: false, calendarID: "cal", calendarName: "Work",
-            calendarItemID: id, link: link)
+            calendarColor: nil, calendarItemID: id, link: link)
     }
 
     static func expect(_ condition: Bool, _ label: String) {

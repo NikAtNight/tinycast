@@ -32,7 +32,7 @@ final class PaletteState {
     private(set) var isVisible = false
     /// Changes every time the palette is shown so the search field can re-focus.
     var focusToken = UUID()
-    /// Bumped when a screen opens fresh, so lists snap to the top even when nothing else changed.
+    /// Bumped when a screen opens fresh, so its list lands again even when nothing else changed.
     var resetToken = UUID()
     /// Bumped when an action reorders the list, so the highlight scrolls back into view.
     var followToken = UUID()
@@ -54,6 +54,8 @@ final class PaletteState {
     var commandArguments: [String: String] = [:]
     /// Set when the palette opens to fill one row's fields; the header focuses the first empty one.
     var pendingArgumentEntryID: String?
+    /// The row a shortcut opened root search onto, listed alone while the query is its name.
+    var argumentEntryID: String?
     /// True once ⌘ has been *held*, which numbers the favorite rows. The panel is the only writer.
     private(set) var commandHeld = false
     /// A chord is a tap, so the numbering waits out the tap before it claims the trailing labels.
@@ -112,7 +114,7 @@ final class PaletteState {
         openScreen(frame.mode)
         query = frame.query
         selection = frame.selection
-        // Not `resetToken`: snapping to the top would throw away the selection restored here.
+        // Not `resetToken`: landing the list again would throw away the selection restored here.
         followToken = UUID()
         return true
     }
@@ -144,6 +146,7 @@ final class PaletteState {
         isControlListOpen = false
         commandArguments = [:]
         pendingArgumentEntryID = nil
+        argumentEntryID = nil
         clipboardFilter = .all
         fileSearchFilter = .all
         emojiCategoryFilter = .all

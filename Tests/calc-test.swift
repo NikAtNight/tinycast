@@ -56,6 +56,26 @@ struct CalcTests {
         expectDisplay("10k * 2", "20,000")
         expectBadges("10k", source: "Expression", target: "Result")
 
+        // Magnitude words scale the literal before them, spaced or attached, in any case
+        expectDisplay("13 million", "13,000,000")
+        expectCopy("1.5 billion", "1500000000")
+        expectDisplay("2 Thousand + 1", "2,001")
+        expectDisplay("3million / 2", "1,500,000")
+        expectDisplay("13 million idr to usd", "720.10 USD")
+        expectDisplay("1.5 million idr to sgd", "112.17 SGD")
+        expectDisplay("IDR 13 million to usd", "720.10 USD")
+        expectDisplay("10% of 2 million", "200,000")
+        expectExpression("13 million +", "13 million +")
+        expectBadges("13 million", source: "Expression", target: "Result")
+        expectNil("million")
+        expectNil("2 * million")
+        expectNil("(2 + 3) million")
+        expectNil("13 millions")
+        expectNil("13 million2")
+        expectNil("1e308 billion")
+        expectDisplay("10 milliseconds to s", "0.01 s")
+        expectLocalized("1,5 million", "1.500.000", italian)
+
         // Scientific notation input
         expectDisplay("1e6 + 1", "1,000,001")
         expectDisplay("1.5e-3 * 2", "0.003")
@@ -989,6 +1009,20 @@ struct CalcTests {
         expectDisplayAt("9:30am in nyc", "5:30 AM")
         expectDisplayAt("5pm in tokyo", "2:00 AM (tomorrow)")
         expectBadgesAt("5pm london in sf", source: "London", target: "Los Angeles")
+        // The locale's hour cycle, which the 24-hour switch overrides, picks the clock
+        var hour24 = clock.calendar
+        hour24.locale = Locale(identifier: "en_US@hours=h23")
+        var britain = clock.calendar
+        britain.locale = Locale(identifier: "en_GB")
+        var britain12 = clock.calendar
+        britain12.locale = Locale(identifier: "en_GB@hours=h12")
+        expectDisplayAt("time in tokyo", "09:18", calendar: hour24)
+        expectDisplayAt("5pm in tokyo", "02:00 (tomorrow)", calendar: hour24)
+        expectDisplayAt("unix -1", "31 December, 1969 at 23:59:59", calendar: hour24)
+        expectDisplayAt("now + 90 min", "24 July at 01:48", calendar: hour24)
+        expectDisplayAt("time in sf", "17:18 (yesterday)", calendar: britain)
+        expectBadgesAt("hrs till 9am", source: "00:18", target: "09:00", calendar: britain)
+        expectDisplayAt("time in sf", "5:18 pm (yesterday)", calendar: britain12)
 
         let zoneNow = clock.calendar.date(
             from: DateComponents(year: 2026, month: 9, day: 15, hour: 12))!
@@ -1501,8 +1535,222 @@ struct CalcTests {
         expectDisplay("1kg + 1kg to g", "2,000 g")
         expectDisplay("2hr + 30min to min", "150 min")
 
+        localeTests()
+
         print("\n\(passes) passed, \(failures) failed")
         exit(failures == 0 ? 0 : 1)
+    }
+
+    // MARK: - Locale-aware input and output
+
+    static let italian = CalcNumberFormat(decimalSeparator: ",", groupingSeparator: ".")!
+    static let french = CalcNumberFormat(decimalSeparator: ",", groupingSeparator: "\u{202F}")!
+    static let swiss = CalcNumberFormat(decimalSeparator: ".", groupingSeparator: "\u{2019}")!
+    static let ungrouped = CalcNumberFormat(decimalSeparator: ",", groupingSeparator: nil)!
+
+    static func localeTests() {
+        // Resolving a format from the Mac's separators
+        check(
+            "format [en separators]", expected: "true",
+            got: "\(CalcNumberFormat(decimalSeparator: ".", groupingSeparator: ",") == .english)")
+        check(
+            "format [arabic decimal]", expected: "nil",
+            got: "\(CalcNumberFormat(decimalSeparator: "\u{066B}", groupingSeparator: "\u{066C}") as Any)")
+        check(
+            "format [grouping equal to decimal]", expected: "nil",
+            got:
+                "\(CalcNumberFormat(decimalSeparator: ",", groupingSeparator: ",")?.groupingSeparator as Any)"
+        )
+        check(
+            "format [ascii space grouping]", expected: "nil",
+            got:
+                "\(CalcNumberFormat(decimalSeparator: ",", groupingSeparator: " ")?.groupingSeparator as Any)"
+        )
+        check("format [it argument separator]", expected: ";", got: String(italian.argumentSeparator))
+        check("format [ch argument separator]", expected: ",", got: String(swiss.argumentSeparator))
+
+        // The issue's own examples
+        expectLocalized("2,3 + 1,5", "3,8", italian)
+        expectLocalized("1.234,56 + 0,44", "1.235", italian)
+        expectLocalized("10/4", "2,5", italian)
+        expectLocalizedCopy("1.234,56 + 0,44", "1235", italian)
+        expectLocalizedCopy("10/4", "2,5", italian)
+
+        // Decimal comma, dot grouping
+        expectLocalized("2^20", "1.048.576", italian)
+        expectLocalized("1.000.000 / 3", "333.333,3333", italian)
+        expectLocalized("1/3", "0,3333333333", italian)
+        expectLocalized(",5 + 1", "1,5", italian)
+        expectLocalized("1,5e3", "1.500", italian)
+        expectLocalized("2,5k", "2.500", italian)
+        expectLocalized("12.345.678 + 1", "12.345.679", italian)
+        expectLocalized("-1.234,5 * 2", "-2.469", italian)
+        expectLocalized("2 + 2 =", "4", italian)
+        expectLocalizedCopy("2^20", "1048576", italian)
+        expectLocalizedCopy("1/3", "0,3333333333", italian)
+
+        // Function arguments take `;`; a comma between digits is always the decimal
+        expectLocalized("max(2,5; 3)", "3", italian)
+        expectLocalized("max(2,5;3,5)", "3,5", italian)
+        expectLocalized("hypot(3;4)", "5", italian)
+        expectLocalized("round(3,14159; 2)", "3,14", italian)
+        expectLocalized("gcd(12;18;8)", "2", italian)
+        expectLocalized("log(8;2)", "3", italian)
+        expectLocalized("max(1.000; 999)", "1.000", italian)
+        expectLocalized("max(2,3)", "2,3", italian)
+        expectLocalized("hypot(3m;400cm)", "5 m", italian)
+        expectLocalizedExpression("hypot(3m;400cm)", "hypot(3 m; 400 cm)", italian)
+        expectLocalizedExpression("max(2,5;3)", "max(2,5; 3)", italian)
+        // A spaced comma can't sit between two digits, so it still separates
+        expectLocalized("max(2, 3)", "3", italian)
+        expectLocalized("average of 10; 20; 30", "20", italian)
+        expectLocalized("average of 10, 20, 30", "20", italian)
+        expectLocalized("sum of 1,5; 2,5", "4", italian)
+
+        // A number with no single reading earns no card rather than a guess
+        expectLocalizedNil("1,2,3", italian)
+        expectLocalizedNil("1.5 + 1", italian)
+        expectLocalizedNil("1.23,4 + 1", italian)
+        expectLocalizedNil("1,234.5 + 1", italian)
+        expectLocalizedNil("12.34 * 2", italian)
+        expectLocalizedNil("1.2345 + 1", italian)
+
+        // Partial input keeps the card while the next digits are still coming
+        expectLocalized("1 + 2,", "3", italian)
+        expectLocalized("2,5 +", "2,5", italian)
+        expectLocalizedExpression("2,5 +", "2,5 +", italian)
+        expectLocalizedExpression("1.234,5 *", "1234,5 ×", italian)
+
+        // Units, currency and percent render through the same formatter
+        expectLocalized("1,5km to m", "1.500 m", italian)
+        expectLocalized("10kg + 500g", "10.500 g", italian)
+        expectLocalized("2,5 hours to min", "150 min", italian)
+        expectLocalized("5feet + 1m", "2,524 m", italian)
+        expectLocalizedCopy("1,5km to m", "1500 m", italian)
+        expectLocalized("€1.234,50 to usd", "1.341,85 USD", italian)
+        expectLocalizedCopy("€1.234,50 to usd", "1341,85 USD", italian)
+        expectLocalized("$10 + 5", "15,00 USD", italian)
+        expectLocalized("20% off 1.500", "1.200", italian)
+        expectLocalized("0x1000", "4.096", italian)
+        expectLocalized("255 to hex", "0xFF", italian)
+        expectLocalizedCopy("0x1000", "4096", italian)
+        expectLocalizedExpression("1,5km to m", "1,5 km", italian)
+
+        // Dates, clocks and zones never reach the number rewrite
+        for query in [
+            "17.2.26 + 100 weekdays", "25.8.27", "25. aug", "25. aug + 3",
+            "time in Tokyo", "1970-01-01T00:00:00.125Z to unix ms", "1.2.3 + 1", "7:30 - 13:30"
+        ] {
+            expectSameAsEnglish(query, italian)
+        }
+        expectLocalized("1970-01-01T00:00:00Z + 1h to unix", "3.600", italian)
+        expectLocalized("hrs till 9am", "8,7 hours", italian)
+
+        // Space grouping: the Mac's narrow no-break space, never a typed space
+        expectLocalized("1\u{202F}234,5 + 0,5", "1\u{202F}235", french)
+        expectLocalized("2^20", "1\u{202F}048\u{202F}576", french)
+        expectLocalized("max(1,5; 2)", "2", french)
+        expectLocalized("1.5 + 1", "2,5", french)
+
+        // Decimal dot with apostrophe grouping keeps the comma for arguments
+        expectLocalized("1\u{2019}234.5 + 0.5", "1\u{2019}235", swiss)
+        expectLocalized("max(1,2)", "2", swiss)
+        expectLocalized("1,000 + 234", "1\u{2019}234", swiss)
+        expectLocalized("10/4", "2.5", swiss)
+        expectSameAsEnglish("19.2.27", swiss)
+        expectSameAsEnglish("1.2.3 + 1", swiss)
+
+        // A format without grouping neither reads nor writes one
+        expectLocalized("1234,5 * 2", "2469", ungrouped)
+        expectLocalized("2^20", "1048576", ungrouped)
+        expectLocalized("1.234 + 1", "2,234", ungrouped)
+
+        // English stays byte-for-byte what it was
+        expectLocalized("1,000 + 234", "1,234", .english)
+        expectLocalized("max(2,3)", "3", .english)
+        expectLocalizedNil("max(2;3)", .english)
+
+        // Canonical history text, localized for display
+        check("history [grouped]", expected: "1.234,5 kg", got: italian.localized("1,234.5 kg"))
+        check("history [dotted date]", expected: "19.2.27", got: italian.localized("19.2.27"))
+        check("history [clock]", expected: "00:18:00.123", got: italian.localized("00:18:00.123"))
+        check(
+            "history [date prose]", expected: "Friday, 24 July 2026",
+            got: italian.localized("Friday, 24 July 2026"))
+        check(
+            "history [arguments]", expected: "max(1,5; 2)",
+            got: italian.localizedExpression("max(1.5, 2)"))
+        // Inside a call a canonical comma is an argument, even where it looks like grouping
+        check(
+            "history [unspaced arguments]", expected: "max(2;3)", got: italian.localizedExpression("max(2,3)")
+        )
+        check(
+            "history [grouping-shaped argument]", expected: "max(1;234) + 1.234",
+            got: italian.localizedExpression("max(1,234) + 1,234"))
+        check(
+            "history [decimal argument]", expected: "round(3,14159;2)",
+            got: italian.localizedExpression("round(3.14159,2)"))
+        check(
+            "history [nested call]", expected: "2max(1; min(2;3))",
+            got: italian.localizedExpression("2max(1, min(2,3))"))
+        check("history [ch arguments]", expected: "max(1,234)", got: swiss.localizedExpression("max(1,234)"))
+        expectLocalizedExpression("max(1,234)", "max(1,234)", swiss)
+        expectLocalized("max(1;234)", "234", italian)
+        check("history [exponent]", expected: "1,524157875e+16", got: italian.localized("1.524157875e+16"))
+        check("history [english]", expected: "1,234.5", got: CalcNumberFormat.english.localized("1,234.5"))
+        check("history [search]", expected: "3.8", got: italian.canonical("3,8") ?? "nil")
+    }
+
+    static func evaluateLocalized(_ query: String, _ format: CalcNumberFormat) -> CalcResult? {
+        CalcEngine.evaluate(
+            query, now: clock.now, calendar: clock.calendar, rates: fx, format: format
+        ).map(format.localized)
+    }
+
+    static func formatLabel(_ query: String, _ format: CalcNumberFormat) -> String {
+        "\(query) [decimal \(format.decimalSeparator)]"
+    }
+
+    static func expectLocalized(_ query: String, _ expected: String, _ format: CalcNumberFormat) {
+        guard case .value(let display, _)? = evaluateLocalized(query, format)?.payload else {
+            fail(formatLabel(query, format), expected: expected, got: "nil / error")
+            return
+        }
+        check(formatLabel(query, format), expected: expected, got: display)
+    }
+
+    static func expectLocalizedCopy(_ query: String, _ expected: String, _ format: CalcNumberFormat) {
+        guard case .value(_, let copy)? = evaluateLocalized(query, format)?.payload else {
+            fail(formatLabel(query, format), expected: expected, got: "nil / error")
+            return
+        }
+        check(formatLabel(query, format) + " [copy]", expected: expected, got: copy)
+    }
+
+    static func expectLocalizedExpression(
+        _ query: String, _ expected: String, _ format: CalcNumberFormat
+    ) {
+        guard let result = evaluateLocalized(query, format) else {
+            fail(formatLabel(query, format), expected: expected, got: "nil")
+            return
+        }
+        check(formatLabel(query, format) + " [expression]", expected: expected, got: result.expression)
+    }
+
+    static func expectLocalizedNil(_ query: String, _ format: CalcNumberFormat) {
+        if let result = evaluateLocalized(query, format) {
+            fail(formatLabel(query, format), expected: "nil", got: "\(result.payload)")
+        } else {
+            passes += 1
+        }
+    }
+
+    /// Text with no decimal in it must come out exactly as English renders it.
+    static func expectSameAsEnglish(_ query: String, _ format: CalcNumberFormat) {
+        let english = CalcEngine.evaluate(query, now: clock.now, calendar: clock.calendar, rates: fx)
+        check(
+            formatLabel(query, format) + " [same as English]", expected: "\(english as Any)",
+            got: "\(evaluateLocalized(query, format) as Any)")
     }
 
     // MARK: - Fixed clock for deterministic date/time tests (Fri 2026-07-24 00:18:00 UTC)

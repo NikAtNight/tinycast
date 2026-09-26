@@ -35,7 +35,6 @@ extension View {
             .environment(core.hotKeys)
             .environment(core.uninstall)
             .environment(core.quicklinks)
-            .environment(core.customCommandArguments)
             .environment(core.quicklinkArguments)
             .environment(core.snippetsStore)
             .environment(core.extensions)

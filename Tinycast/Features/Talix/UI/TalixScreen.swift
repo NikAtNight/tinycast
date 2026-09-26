@@ -92,9 +92,9 @@ struct TalixScreen: PaletteScreen {
 
     func headerAccessory(at selection: Int, focus: FocusState<String?>.Binding) -> PaletteHeaderAccessory? {
         guard case .log = row(at: selection) else { return nil }
-        let arguments: [SnippetTemplateEngine.MissingArgument] = [
-            .init(name: "Project", options: ["Choose project"]),
-            .init(name: "Duration", options: []), .init(name: "Description", options: [])
+        let arguments: [InlineArgument] = [
+            .init(id: "Project", title: "Project", options: ["Choose project"]),
+            .init(id: "Duration", title: "Duration"), .init(id: "Description", title: "Description")
         ]
         let value: (String) -> Binding<String> = { name in
             switch name {
@@ -107,9 +107,9 @@ struct TalixScreen: PaletteScreen {
             }
         }
         return PaletteHeaderAccessory(
-            width: QuicklinkArgumentsRow.totalWidth(for: arguments, hasIcon: false, metrics: metrics),
-            fieldNames: arguments.map(\.name),
-            firstIncompleteField: arguments.first { value($0.name).wrappedValue.isEmpty }?.name,
+            width: InlineArgumentFields.totalWidth(for: arguments, hasIcon: false, metrics: metrics),
+            fieldNames: arguments.map(\.id),
+            firstIncompleteField: arguments.first { value($0.id).wrappedValue.isEmpty }?.id,
             optionsMenu: { name in
                 guard name == "Project" else { return nil }
                 return PopoverMenuContent(header: "Project", items: coordinator.store.projects.map { project in
@@ -119,7 +119,7 @@ struct TalixScreen: PaletteScreen {
                     }
                 })
             }, placement: .besideSearchField,
-            view: AnyView(QuicklinkArgumentsRow(arguments: arguments, symbol: nil, value: value,
+            view: AnyView(InlineArgumentFields(arguments: arguments, symbol: nil, value: value,
                 focused: focus, openOptions: openArgumentOptions, onSubmit: coordinator.logTime)))
     }
 
