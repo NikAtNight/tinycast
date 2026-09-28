@@ -165,6 +165,11 @@ All cursor tokens are removed. The first cursor in the final expanded traversal 
 inside a nested snippet, and its offset uses Swift `Character` boundaries so composed Unicode moves
 the caret correctly.
 
+Where the event tier delivers (a Chromium or Electron target), the caret is walked back one Left
+Arrow at a time, so `InjectedText.arrowSteps` only walks a cursor within `maxArrowSteps` (120)
+characters of the end. One further back stays at the end: walking a long template back scrolled the
+field for seconds. Put `{cursor}` near the end of a long template.
+
 ## Launcher and automatic keywords
 
 Every enabled snippet appears in launcher search while the pane's "Show in launcher" switch is on.

@@ -17,6 +17,15 @@ struct InjectedText: Equatable, Sendable {
         let offset = min(max(cursorOffsetFromEnd ?? 0, 0), text.count)
         return text[..<text.index(text.endIndex, offsetBy: -offset)].utf16.count
     }
+
+    /// Past this, walking the caret back by arrow keys scrolls the field for seconds.
+    static let maxArrowSteps = 120
+
+    /// Left arrows the event tier posts; a cursor too far back stays at the end instead.
+    var arrowSteps: Int {
+        let offset = max(cursorOffsetFromEnd ?? 0, 0)
+        return offset <= Self.maxArrowSteps ? offset : 0
+    }
 }
 
 enum AccessibilityReplacement: Equatable {
@@ -381,7 +390,8 @@ final class TextInjector {
                 automaticGeneration: automaticGeneration)
         else { return }
 
-        guard let offset = injected.cursorOffsetFromEnd, offset > 0 else {
+        let offset = injected.arrowSteps
+        guard offset > 0 else {
             completion.confirm()
             return
         }

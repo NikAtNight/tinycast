@@ -708,6 +708,14 @@ struct SnippetsTests {
         check(
             "the caret offset counts UTF-16 units, not characters",
             InjectedText("\u{1F1F3}\u{1F1F1} done", cursorOffsetFromEnd: 5).caretPrefixLength == 4)
+        let longTail = String(repeating: "x", count: InjectedText.maxArrowSteps + 1)
+        check(
+            "the event tier walks a near cursor back and leaves a far one at the end",
+            InjectedText("ab", cursorOffsetFromEnd: 1).arrowSteps == 1
+                && InjectedText(longTail, cursorOffsetFromEnd: InjectedText.maxArrowSteps).arrowSteps
+                    == InjectedText.maxArrowSteps
+                && InjectedText(longTail, cursorOffsetFromEnd: longTail.count).arrowSteps == 0
+                && InjectedText("ab").arrowSteps == 0)
     }
 
     private static func testDeliveryQueueAndPasteboard() async throws {
