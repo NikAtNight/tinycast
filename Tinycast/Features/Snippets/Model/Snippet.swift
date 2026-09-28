@@ -6,19 +6,30 @@ struct Snippet: Sendable, Hashable {
     var keyword: String?
     var isEnabled: Bool
     var showsConfirmation: Bool
+    /// Bundle IDs this template is offered in first; empty means it belongs to no app in particular.
+    var apps: [String]
+    var group: String?
 
     init(
         name: String,
         text: String,
         keyword: String? = nil,
         isEnabled: Bool = true,
-        showsConfirmation: Bool = false
+        showsConfirmation: Bool = false,
+        apps: [String] = [],
+        group: String? = nil
     ) {
         self.name = name
         self.text = text
         self.keyword = keyword
         self.isEnabled = isEnabled
         self.showsConfirmation = showsConfirmation
+        self.apps = apps
+        self.group = group
+    }
+
+    func isOffered(in bundleID: String) -> Bool {
+        apps.contains { $0.caseInsensitiveCompare(bundleID) == .orderedSame }
     }
 }
 

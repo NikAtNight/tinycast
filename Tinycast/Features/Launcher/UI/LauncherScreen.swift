@@ -32,6 +32,8 @@ struct LauncherScreen: PaletteScreen {
     private let favoriteCount: Int
     /// How many rows after the favorites are the Recent section; zero unless the query is empty.
     private let recentCount: Int
+    /// Rows between the favorites and Recent that are written for the app behind the palette.
+    private let forAppCount: Int
     /// How many follow the Recent section as Suggestions; zero unless the field is empty.
     private let suggestionCount: Int
     /// The `Use "…" with` section, below every result; empty unless something is typed.
@@ -66,7 +68,7 @@ struct LauncherScreen: PaletteScreen {
             pinned.map { AppIndex.Results(entries: [$0]) }
             ?? appIndex.orderedResults(
                 query: vm.query, visibility: visibility, favorites: favorites, recents: recents,
-                hotKeys: core.hotKeys)
+                hotKeys: core.hotKeys, forApp: vm.pasteTarget?.bundleID)
         var results = ordered.entries
         // A typed web address leads: nothing the index holds answers it better.
         if pinned == nil, let browser = CommandCatalog.openInBrowser(for: vm.query),
@@ -93,6 +95,7 @@ struct LauncherScreen: PaletteScreen {
         self.showSections = pinsFavorites || AppEntry.Kind.named(by: vm.query) != nil
         self.pinsFavorites = pinsFavorites
         self.favoriteCount = pinsFavorites ? ordered.favoriteCount : 0
+        self.forAppCount = pinsFavorites ? ordered.forAppCount : 0
         self.recentCount = pinsFavorites ? ordered.recentCount : 0
         self.suggestionCount = pinsFavorites ? ordered.suggestionCount : 0
         if let calc {
@@ -386,7 +389,7 @@ struct LauncherScreen: PaletteScreen {
     private func reorderedResults() -> AppIndex.Results {
         appIndex.orderedResults(
             query: vm.query, visibility: visibility, favorites: favorites, recents: recents,
-            hotKeys: core.hotKeys)
+            hotKeys: core.hotKeys, forApp: vm.pasteTarget?.bundleID)
     }
 
     private func select(row index: Int) {
@@ -416,6 +419,8 @@ struct LauncherScreen: PaletteScreen {
             results: results,
             selectedRowID: row(at: selection)?.id,
             favoriteCount: favoriteCount,
+            forAppCount: forAppCount,
+            forAppTitle: "For \(vm.pasteTarget?.name ?? "This App")",
             recentCount: recentCount,
             suggestionCount: suggestionCount,
             showSections: showSections,

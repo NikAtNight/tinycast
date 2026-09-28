@@ -373,6 +373,9 @@ enum SettingsSearchCatalog {
             .snippetsLibrary, "New Snippet",
             keywords: ["add", "keyword", "expansion"]),
         .init(
+            .snippetsLibrary, "Starter AI Prompts",
+            keywords: ["ai", "prompts", "templates", "claude", "cursor", "chatgpt"]),
+        .init(
             .snippetsLibrary, "Snippets Folder",
             keywords: ["reveal", "finder", "markdown", "files"])
     ]

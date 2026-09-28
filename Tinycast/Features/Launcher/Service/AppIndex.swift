@@ -135,6 +135,8 @@ struct AppEntry: Identifiable, Hashable, Sendable {
     var ownerName: String?
     /// When it landed on disk, so a fresh install can be suggested before its first open.
     var installedAt: Date?
+    /// Bundle IDs a snippet is written for, offered first when the palette opens over one.
+    var offeredInApps: [String] = []
     /// The searchable form of every field above, built at publish by `buildSearchProfile`.
     var search = SearchProfile.unnamed
 
@@ -166,6 +168,10 @@ struct AppEntry: Identifiable, Hashable, Sendable {
     }
 
     var kindLabel: String { ownerName ?? kind.descriptor.label }
+
+    func isOffered(in bundleID: String) -> Bool {
+        offeredInApps.contains { $0.caseInsensitiveCompare(bundleID) == .orderedSame }
+    }
 
     /// The hotkey action for this entry, or nil when the entry has no addressable action.
     var hotKeyAction: HotKeyAction? {
@@ -328,6 +334,7 @@ final class AppIndex {
     struct Results: Equatable {
         var entries: [AppEntry] = []
         var favoriteCount = 0
+        var forAppCount = 0
         var recentCount = 0
         var suggestionCount = 0
     }
@@ -345,6 +352,7 @@ final class AppIndex {
         let visibilityRevision: Int
         let favoritesRevision: Int
         let recentsRevision: Int
+        let forApp: String?
         let hotKeysRevision: Int
         let showsSuggestions: Bool
         /// Suggestions and usage order age with the clock, which no revision tracks.
@@ -578,7 +586,9 @@ final class AppIndex {
                     url: record.fileURL,
                     bundleID: nil,
                     kind: .snippet,
-                    alternateTitles: [record.snippet.keyword].compactMap { $0 })
+                    subtitle: record.snippet.group,
+                    alternateTitles: [record.snippet.keyword].compactMap { $0 },
+                    offeredInApps: record.snippet.apps)
             }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         guard entries != snippetEntries else { return }
@@ -729,14 +739,14 @@ final class AppIndex {
     /// The launcher's rows: ranked matches, or favorites, suggestions and each kind by usage.
     func orderedResults(
         query: String, visibility: VisibilityStore, favorites: FavoritesStore,
-        recents: LauncherRecentsStore, hotKeys: HotKeyManager
+        recents: LauncherRecentsStore, hotKeys: HotKeyManager, forApp: String? = nil
     ) -> Results {
         let q = query.trimmingCharacters(in: .whitespaces)
         let showsSuggestions = settings?.launcherShowsSuggestions ?? true
         let usage = ranking.snapshot()
         let key = ResultsKey(
             match: matchKey(q), visibilityRevision: visibility.revision,
-            favoritesRevision: favorites.revision, recentsRevision: recents.revision,
+            favoritesRevision: favorites.revision, recentsRevision: recents.revision, forApp: forApp,
             hotKeysRevision: hotKeys.revision, showsSuggestions: showsSuggestions,
             minute: Int(usage.now.timeIntervalSince1970 / 60))
         return resultsMemo.value(for: key) {
@@ -744,19 +754,28 @@ final class AppIndex {
             let visible = matches(q).filter(visibility.isVisible)
             guard q.isEmpty else { return Results(entries: visible) }
             let split = favorites.ordered(visible)
-            let recent = Self.recentEntries(recents.keys, among: split.rest)
+            let forAppEntries = forApp.map { app in
+                Array(
+                    byUsage(split.rest.filter { $0.isOffered(in: app) }, usage: usage)
+                        .prefix(Self.forAppLimit))
+            } ?? []
+            let forAppIDs = Set(forAppEntries.map(\.id))
+            let notForApp = split.rest.filter { !forAppIDs.contains($0.id) }
+            let recent = Self.recentEntries(recents.keys, among: notForApp)
             let recentKeys = Set(recent.map(\.preferenceKey))
-            let unshown = split.rest.filter { !recentKeys.contains($0.preferenceKey) }
+            let unshown = notForApp.filter { !recentKeys.contains($0.preferenceKey) }
             let suggested =
                 showsSuggestions ? suggestions(from: unshown, usage: usage, hotKeys: hotKeys) : []
             let shown = Set(suggested.map(\.id))
             let rest = byUsage(unshown.filter { !shown.contains($0.id) }, usage: usage)
             return Results(
-                entries: split.favorites + recent + suggested + rest,
-                favoriteCount: split.favorites.count, recentCount: recent.count,
-                suggestionCount: suggested.count)
+                entries: split.favorites + forAppEntries + recent + suggested + rest,
+                favoriteCount: split.favorites.count, forAppCount: forAppEntries.count,
+                recentCount: recent.count, suggestionCount: suggested.count)
         }
     }
+
+    static let forAppLimit = 5
 
     /// The Recent section: stored order, only what the list still holds, a favorite never twice.
     nonisolated private static func recentEntries(_ keys: [String], among rest: [AppEntry]) -> [AppEntry] {

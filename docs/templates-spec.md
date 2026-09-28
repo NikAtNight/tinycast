@@ -1,6 +1,7 @@
 # Spec: app-aware templates
 
-Status: draft, 2026-09-26. Checked against `main` after the upstream merge (`7eb8e72`).
+Status: v1 built on `feat/templates` (2026-09-26), except step 5. v2 and v3 are not started.
+What shipped is documented in [snippets.md](features/snippets.md#snippets-for-an-app).
 
 ## What we want
 
@@ -67,10 +68,10 @@ app's name and icon) between Favorites and Recent. Up to five rows, most recentl
 This needs no new permission and no background work. It uses the same `AppIndex.orderedResults`
 path as the Recent section we just merged, with a `forAppCount` next to `recentCount`.
 
-### 2. Templates screen filtered to the current app (v1)
+### 2. Snippets screen filtered to the current app (v1)
 
-A new command, **Templates for This App**, that opens the Snippets screen filtered to
-`previousApp`'s templates plus untagged ones in the "AI prompts" group. It's a `CommandID`, so it can
+A new command, **Snippets for This App**, that opens the Snippets screen filtered to
+`previousApp`'s tagged templates. It's a `CommandID`, so it can
 take a global hotkey (for example ⌥Space in Claude to go straight to prompts).
 
 ### 3. Menu bar indicator (v2, off by default)
@@ -89,6 +90,27 @@ A little icon near the caret, like Grammarly. It needs Accessibility to find the
 frame, has to follow scrolling and window moves, and fights every app's own UI. I'd skip it unless
 v1 and v2 turn out not to be enough.
 
+## Browsers (v3)
+
+Desktop apps come first. In a browser, `previousApp` is just "Safari" or "Arc", so a template tagged
+for Claude never shows up on claude.ai. v3 fixes that by matching the page as well as the app.
+
+- **A new `sites` field** next to `apps`, with host names like `["claude.ai", "chatgpt.com"]`. A
+  template tagged `apps: [Claude desktop]` and `sites: [claude.ai]` shows up in both places.
+- **Reading the front tab's URL** over AppleScript, and only when the palette opens over a known
+  browser. Safari uses `URL of front document`. Chrome, Arc, Brave and Edge use
+  `URL of active tab of front window`. Firefox has no scripting dictionary, so it's out.
+- **Permission.** Tinycast already has the `com.apple.security.automation.apple-events` entitlement
+  and `NSAppleEventsUsageDescription`, and Spotify already scripts an app this way
+  (`SpotifyPlayer`). So nothing new is needed in the project. Each browser asks once, the first time.
+  If I decline, that browser falls back to matching on the app alone.
+- **Where it runs.** The URL read is a Service call off the main thread with a short timeout, so a
+  hung browser can't stall the palette opening. `Model/` only ever sees the host string.
+- **What stays local.** Only the host is kept, never the full URL, and it isn't written anywhere.
+
+The "For Claude" palette section and "Templates for This App" work the same way. They just match on
+the page host when there is one.
+
 ## Actions on a template
 
 The ⌘K menu on a template row, primary first:
@@ -96,11 +118,12 @@ The ⌘K menu on a template row, primary first:
 | Action | Shortcut | What it does |
 | --- | --- | --- |
 | Paste to {app} | ↵ | Expand, then `TextInjector.deliver` into `previousApp` (today's snippet behavior) |
-| Copy | ⌘C | Expand, then put the text on the clipboard |
-| Ask AI | ⌘↵ | Expand, then `QuickAICoordinator.ask(_:)`, which opens Quick AI with it as the prompt |
-| Open in AI Chat | ⇧⌘↵ | Same as above, but in the AI Chat window |
-| Copy raw | ⌥⌘C | The template text with its tokens still in it |
-| Edit / Duplicate / Show in Finder | | Same as the snippet screen today |
+| Copy Snippet | | Expand, then put the text on the clipboard |
+| Ask AI | | Expand, then `QuickAICoordinator.ask(_:)`, which opens Quick AI with it as the prompt |
+| Edit / Create / Show in Finder | | Same as the snippet screen today |
+
+Built without key bindings: menu items only. "Open in AI Chat" was dropped because Quick AI's ⌘J
+already moves the conversation into the AI Chat window. "Copy raw" was dropped as not worth a row.
 
 Ask AI is where AI prompts beat plain snippets. You don't have to be in a chat app to use them.
 Pick "Explain this error", it fills `{clipboard}`, and the answer comes back in Tinycast.
@@ -114,7 +137,8 @@ at a time in the search field, ↵ to go to the next one. Keyword expansion (typ
 app) keeps the dialog, since the palette isn't open then.
 
 Doing this means lifting the session out of `Quicklinks/` so snippets can use it too. That's the one
-refactor this spec needs, and it has a real second user, so it's justified.
+refactor this spec needs, and it has a real second user, so it's justified. **Not built yet**:
+Copy and Ask AI use the existing argument dialog for now.
 
 ## Starter templates
 
@@ -126,7 +150,8 @@ Rewrite shorter, Turn into a ticket, Debug this error.
 - Nothing gets seeded silently on upgrade. The button is the only way in, so there's no migration.
 - They're written as normal files, so once added they're mine to edit or delete.
 - It skips any name that already exists, so pressing it twice doesn't create duplicates.
-- The pack ships as `.md` files in the app's resources, in the same format the user edits.
+- The pack is `SnippetStarterPack` in `Snippets/Model/`, so it stays Foundation-only and
+  `snippets-test` checks that every prompt round-trips and declares the arguments it means to.
 
 ## Invariants
 
@@ -140,25 +165,24 @@ Rewrite shorter, Turn into a ticket, Debug this error.
 
 ## Work breakdown
 
-1. `apps` and `group` in `Snippet` and the serializer, with `snippets-test` cases. Editor fields.
-2. The "For {app}" section in `AppIndex.orderedResults` and `LauncherList`, plus harness cases in
-   `recents-test` or a new one.
-3. `CommandID.templatesForThisApp` and the filtered snippet screen.
-4. Copy, Ask AI and Open in AI Chat actions on snippet rows.
-5. Move the argument session out of Quicklinks and use it for snippets opened from the palette.
-6. The starter pack and its Settings button.
+1. Done. `apps` and `group` in `Snippet` and the serializer, with `snippets-test` cases. Editor
+   fields.
+2. Done. The "For {app}" section in `AppIndex.orderedResults` and `LauncherList`. No harness: the
+   ordering lives in `AppIndex`, which the harnesses don't compile.
+3. Done. `CommandID.snippetsForThisApp` and the filtered snippet screen.
+4. Done. Copy Snippet and Ask AI on snippet rows.
+5. Not started. Move the argument session out of Quicklinks and use it for snippets.
+6. Done. The starter pack and its Settings button.
 7. (v2) Menu bar indicator.
+8. (v3) `sites` field, the browser URL reader, and host matching in the palette section.
 
 Each step ships on its own. Steps 1 to 4 are the useful core. Docs go in `docs/features/snippets.md`
 and `docs/features/launcher.md` in the same commits.
 
 ## Open questions
 
-- **Browsers.** ChatGPT and Claude in Safari or Arc look like "Safari" to `previousApp`. Matching on
-  the page URL means AppleScript per browser plus an Automation prompt. Worth it, or tag the browser
-  and move on?
 - **Naming.** Keep calling them Snippets in the UI, or rename the pane to "Snippets & Templates"?
-- **ChatGPT desktop bundle ID.** It isn't installed here, so `com.openai.chat` needs checking before
-  it goes in the starter pack.
+- **ChatGPT desktop bundle ID.** It isn't installed here, so the starter pack tags only Claude and
+  Cursor. `com.openai.chat` needs checking before it's added.
 - **Per-app default.** Should an app get one "default" template that ↵ on the indicator pastes
   straight away, or is a short list always better?

@@ -26,6 +26,8 @@ struct SnippetMarkdownSerializer {
         var keyword: String?
         var isEnabled = true
         var showsConfirmation = false
+        var apps: [String] = []
+        var group: String?
         var seenKeys = Set<String>()
 
         for lineIndex in 1..<closingIndex {
@@ -57,6 +59,13 @@ struct SnippetMarkdownSerializer {
                 isEnabled = try decodeBoolean(rawValue, fileURL: fileURL, line: lineNumber)
             case "show_confirmation":
                 showsConfirmation = try decodeBoolean(rawValue, fileURL: fileURL, line: lineNumber)
+            case "apps":
+                apps = try decodeList(rawValue, fileURL: fileURL, line: lineNumber)
+                    .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            case "group":
+                let decoded = try decodeScalar(rawValue, fileURL: fileURL, line: lineNumber)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                group = decoded.isEmpty ? nil : decoded
             default:
                 preconditionFailure("Canonical keys are exhaustively handled")
             }
@@ -68,7 +77,9 @@ struct SnippetMarkdownSerializer {
             text: String(content[bodyStart...]),
             keyword: keyword,
             isEnabled: isEnabled,
-            showsConfirmation: showsConfirmation
+            showsConfirmation: showsConfirmation,
+            apps: apps,
+            group: group
         )
     }
 
@@ -82,6 +93,12 @@ struct SnippetMarkdownSerializer {
         }
         lines.append("enabled: \(snippet.isEnabled)")
         lines.append("show_confirmation: \(snippet.showsConfirmation)")
+        if !snippet.apps.isEmpty {
+            lines.append("apps: [\(snippet.apps.map(encodeScalar).joined(separator: ", "))]")
+        }
+        if let group = snippet.group {
+            lines.append("group: \(encodeScalar(group))")
+        }
         lines.append("---")
         return lines.joined(separator: "\n") + "\n" + snippet.text
     }
@@ -131,7 +148,7 @@ struct SnippetMarkdownSerializer {
     private static func canonicalKey(for rawKey: String) -> String? {
         let key = rawKey.lowercased()
         switch key {
-        case "name", "keyword", "enabled", "show_confirmation":
+        case "name", "keyword", "enabled", "show_confirmation", "apps", "group":
             return key
         default:
             return nil
@@ -179,6 +196,46 @@ struct SnippetMarkdownSerializer {
             index = scalars.index(after: index)
         }
         throw parseError(fileURL, line: line, "Unterminated quoted value")
+    }
+
+    /// `["a", "b"]`: each element is a quoted scalar with the same escapes, and `[]` is empty.
+    private static func decodeList(_ value: String, fileURL: URL, line: Int) throws -> [String] {
+        guard value.hasPrefix("["), value.hasSuffix("]") else {
+            throw parseError(fileURL, line: line, "List values must be written as [\"a\", \"b\"]")
+        }
+        var rest = Substring(value.dropFirst().dropLast()).drop { $0 == " " || $0 == "\t" }
+        var items: [String] = []
+        while !rest.isEmpty {
+            guard rest.first == "\"", let close = closingQuote(in: rest) else {
+                throw parseError(fileURL, line: line, "List elements must use double quotes")
+            }
+            items.append(try decodeScalar(String(rest[...close]), fileURL: fileURL, line: line))
+            rest = rest[rest.index(after: close)...].drop { $0 == " " || $0 == "\t" }
+            guard !rest.isEmpty else { break }
+            guard rest.first == "," else {
+                throw parseError(fileURL, line: line, "List elements must be separated by ','")
+            }
+            rest = rest.dropFirst().drop { $0 == " " || $0 == "\t" }
+            guard !rest.isEmpty else {
+                throw parseError(fileURL, line: line, "Trailing ',' in list")
+            }
+        }
+        return items
+    }
+
+    /// The index of the quote that ends the scalar opening `text`, skipping escaped quotes.
+    private static func closingQuote(in text: Substring) -> Substring.Index? {
+        var index = text.index(after: text.startIndex)
+        while index < text.endIndex {
+            if text[index] == "\\" {
+                index = text.index(after: index)
+                guard index < text.endIndex else { return nil }
+            } else if text[index] == "\"" {
+                return index
+            }
+            index = text.index(after: index)
+        }
+        return nil
     }
 
     private static func decodeBoolean(_ value: String, fileURL: URL, line: Int) throws -> Bool {

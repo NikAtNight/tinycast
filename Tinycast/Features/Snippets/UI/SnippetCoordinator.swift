@@ -16,6 +16,8 @@ final class SnippetCoordinator {
     private let showMessage: @MainActor (String) -> Void
     /// The consent dialog and the `pendingSnippetEdit` handoff to the Settings pane.
     private unowned let core: AppCore
+    /// Set by whichever command opened the browser, so Search Snippets always starts unfiltered.
+    private(set) var showsOnlyAppSnippets = false
 
     init(
         store: SnippetsStore,
@@ -79,7 +81,7 @@ final class SnippetCoordinator {
     /// Either switch off means the feature reaches the launcher not at all — rows and commands.
     func applySnippetsLauncherPresence() {
         let visible = settings.snippetsEnabled && settings.snippetsShowInLauncher
-        let commands: Set<CommandID> = [.searchSnippets, .createSnippet]
+        let commands: Set<CommandID> = [.searchSnippets, .snippetsForThisApp, .createSnippet]
         appIndex.setCommandsVisible(commands, settings.snippetsEnabled)
         appIndex.setCommandsListed(commands, settings.snippetsShowInLauncher)
         appIndex.updateSnippets(visible ? store.snippets : [])
@@ -105,6 +107,14 @@ final class SnippetCoordinator {
     /// The switch gates the browser, the way Search Files re-checks its own before opening.
     func showSnippets() {
         guard settings.snippetsEnabled else { return }
+        showsOnlyAppSnippets = false
+        paletteCoordinator.togglePalette(mode: .snippets)
+    }
+
+    /// The same browser, narrowed to the snippets written for the app the palette opens over.
+    func showSnippetsForApp() {
+        guard settings.snippetsEnabled else { return }
+        showsOnlyAppSnippets = true
         paletteCoordinator.togglePalette(mode: .snippets)
     }
 
@@ -160,6 +170,53 @@ final class SnippetCoordinator {
         // One of our own editors is only reachable again once the palette hands key back to it.
         paletteCoordinator.hidePalette(restoreFocus: target?.ownEditor != nil)
         expandSnippet(id: id, target: target)
+    }
+
+    /// Expands onto the clipboard instead of into an app, so it enters history like any copy.
+    func copySnippet(id: StoredSnippet.ID) {
+        expandedText(of: id, hidesPalette: true) { [weak self] text, name in
+            Paster.copyPlainText(text)
+            self?.showMessage("Copied \(name)")
+        }
+    }
+
+    /// Hands the expanded text to Quick AI as a question already asked; ⌘J moves it to a window.
+    func askAI(id: StoredSnippet.ID) {
+        guard settings.aiEnabled else { return }
+        expandedText(of: id, hidesPalette: false) { [weak self] text, _ in
+            self?.core.quickAICoordinator.ask(text)
+        }
+    }
+
+    /// The paste funnel's expansion and argument prompt, with the result handed back as text.
+    private func expandedText(
+        of id: StoredSnippet.ID, hidesPalette: Bool,
+        then use: @escaping @MainActor (String, String) -> Void
+    ) {
+        let records = store.snippets
+        guard let record = records.first(where: { $0.id == id }) else { return }
+        // Read before the panel hides: `{selection}` comes from the app behind it.
+        let target = windowController.previousTarget
+        let context = injector.captureExpansionContext(
+            target: target, clipboardHistory: clipboardHistoryForExpansion())
+        let result = SnippetTemplateEngine.expand(record, snippets: records, context: context)
+        if hidesPalette { paletteCoordinator.hidePalette() }
+        guard !result.missingArguments.isEmpty else {
+            use(result.text, record.snippet.name)
+            return
+        }
+        guard !core.isShowingDialog else { return }
+        if !hidesPalette { paletteCoordinator.hidePalette(restoreFocus: false) }
+        listener.isPromptingForArguments = true
+        Task {
+            let arguments = await core.fillSnippetArguments(
+                snippetName: record.snippet.name, arguments: result.missingArguments)
+            listener.isPromptingForArguments = false
+            guard let arguments else { return }
+            let filled = SnippetTemplateEngine.expand(
+                record, snippets: records, context: context, userArguments: arguments)
+            use(filled.text, record.snippet.name)
+        }
     }
 
     func expandSnippet(

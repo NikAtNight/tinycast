@@ -56,7 +56,7 @@ extension SettingsTab {
         case .quickActions: [.fixGrammar, .rewrite, .translate, .summarize]
         case .fileSearch: [.searchFiles]
         case .notes: [.showNotes, .createNote, .searchNotes]
-        case .snippets: [.searchSnippets, .createSnippet]
+        case .snippets: [.searchSnippets, .snippetsForThisApp, .createSnippet]
         case .navigation: [.switchWindows, .searchMenuItems]
         case .windowManagement:
             [.createWindowLayout, .captureWindowLayout, .switchRoom, .createRoom]

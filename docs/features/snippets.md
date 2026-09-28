@@ -86,13 +86,17 @@ name: "Meeting Notes"
 keyword: "!notes"
 enabled: true
 show_confirmation: false
+apps: ["com.anthropic.claudefordesktop", "dev.zed.Zed"]
+group: "AI prompts"
 ---
 
 Template body
 ```
 
 `name` is optional when reading and defaults from the filename, and `keyword` is optional. `enabled`
-defaults to `true`; `show_confirmation` defaults to `false`.
+defaults to `true`; `show_confirmation` defaults to `false`. `apps` and `group` are optional and only
+written when set. `apps` is a list of bundle IDs (see [Snippets for an app](#snippets-for-an-app)),
+written `[]`-bracketed with each element a quoted string; `group` labels the row in the launcher.
 
 String values must use double quotes. The codec escapes and decodes `\\`, `\"`, `\n`, `\r`, and
 `\t`; unsupported escapes, unquoted strings, duplicate or unknown keys, non-exact delimiters, and
@@ -231,6 +235,29 @@ through `AppCore.pendingSnippetEdit`, and **Show in Finder**.
 
 `Create Snippet` is a launcher command as well as a menu row because the palette swallows ⌘K when a
 screen has no rows: an empty library would otherwise open a browser with nothing to do.
+
+## Snippets for an app
+
+A snippet whose `apps` names a bundle ID is **offered** in that app; it still expands anywhere. The
+editor picks apps through the shared `AppPickerPopover`, and stores only bundle IDs.
+
+- **Root search.** With the field empty, the snippets tagged for the app the palette opened over lead
+  the list in a **For <app>** section, between Favorites and Recent. The app is
+  `PaletteState.pasteTarget`, read once per summon, so nothing watches app switches. See
+  [launcher.md](launcher.md#for-the-app-behind-the-palette).
+- **Snippets for This App.** A command that opens Search Snippets narrowed to those snippets.
+  `SnippetCoordinator.showsOnlyAppSnippets` carries the narrowing; Search Snippets clears it, so the
+  browser only stays narrowed when this command opened it.
+- **Copy Snippet and Ask AI.** Both menus (the browser's and a launcher row's) offer them beside
+  Paste. They run the paste funnel's expansion and argument prompt through
+  `SnippetCoordinator.expandedText`, then put the text on the clipboard (entering history like any
+  copy) or hand it to `QuickAICoordinator.ask`. The context is captured before the palette hides,
+  because `{selection}` reads the app behind it. Ask AI is absent while AI is off.
+
+**Starter AI Prompts** in the pane's Library section writes `SnippetStarterPack.prompts` into the
+library through `importSnippets`, skipping any name already there (case-insensitive), so pressing it
+twice adds nothing. They carry no keyword, sit in the **AI prompts** group, and some are tagged for
+Claude and Cursor. Nothing is seeded on its own: the button is the only way in.
 
 ## Confirmation HUD
 

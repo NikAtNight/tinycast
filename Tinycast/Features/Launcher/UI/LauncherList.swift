@@ -8,6 +8,9 @@ struct LauncherList: View {
     let selectedRowID: String?
     let favoriteCount: Int
     /// The Recent section's rows, right after the favorites; zero when nothing was launched yet.
+    /// Snippets written for the app the palette opened over, titled "For <app>".
+    var forAppCount = 0
+    var forAppTitle = ""
     var recentCount = 0
     let suggestionCount: Int
     let showSections: Bool
@@ -98,9 +101,11 @@ struct LauncherList: View {
         }
         var rows: [Row] = cardRows
         let favorites = results.prefix(favoriteCount)
-        let recent = results.dropFirst(favoriteCount).prefix(recentCount)
-        let suggestions = results.dropFirst(favoriteCount + recentCount).prefix(suggestionCount)
-        let rest = results.dropFirst(favoriteCount + recentCount + suggestionCount)
+        let forApp = results.dropFirst(favoriteCount).prefix(forAppCount)
+        let recent = results.dropFirst(favoriteCount + forAppCount).prefix(recentCount)
+        let suggestions = results.dropFirst(favoriteCount + forAppCount + recentCount)
+            .prefix(suggestionCount)
+        let rest = results.dropFirst(favoriteCount + forAppCount + recentCount + suggestionCount)
         var grouped: [AppEntry.Kind: [AppEntry]] = [:]
         for app in rest { grouped[app.kind, default: []].append(app) }
         if !favorites.isEmpty {
@@ -109,6 +114,10 @@ struct LauncherList: View {
                 contentsOf: favorites.enumerated().map {
                     .app($1, slot: FavoriteSlots.digit(at: $0))
                 })
+        }
+        if !forApp.isEmpty {
+            rows.append(.header(forAppTitle))
+            rows.append(contentsOf: forApp.map { .app($0, slot: nil) })
         }
         if !recent.isEmpty {
             rows.append(.header("Recent"))

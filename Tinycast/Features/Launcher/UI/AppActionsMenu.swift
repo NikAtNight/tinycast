@@ -29,6 +29,9 @@ enum AppActionsMenu {
                 shortcut: "↵"
             ) { core.launcherCoordinator.launch(app, searchQuery: searchQuery) }
         ]
+        if app.kind == .snippet {
+            items += SnippetActionsMenu.extraItems(id: String(app.id.dropFirst("snippet:".count)), core: core)
+        }
         if app.canRevealInFinder {
             items.append(
                 PopoverMenuItem(title: "Show in Finder", systemImage: "folder", shortcut: "⌘↵") {

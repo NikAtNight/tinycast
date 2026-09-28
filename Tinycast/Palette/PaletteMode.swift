@@ -102,11 +102,13 @@ struct PasteTarget: Equatable {
     let name: String
     /// Bundle path for `IconCache` — nil for a target with no on-disk bundle.
     let iconPath: String?
+    let bundleID: String?
 
     init?(app: NSRunningApplication?) {
         guard let app, let name = app.localizedName else { return nil }
         self.name = name
         iconPath = app.bundleURL?.path
+        bundleID = app.bundleIdentifier
     }
 
     var pasteTitle: String { "Paste to \(name)" }

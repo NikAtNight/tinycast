@@ -123,6 +123,7 @@
 		25E7E031DCF72BFF19725344 /* PaletteMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1534DB79CC23709ABC5E9D9B /* PaletteMode.swift */; };
 		26DB736F18280E1BE6C6B8BE /* SettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA61A2FAF4E49E466DA8F37 /* SettingsTab.swift */; };
 		279F586CC34205EBA8ACA892 /* CalloutPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DFA4E0FDAC12379F2D38B5 /* CalloutPlacement.swift */; };
+		27C534BDBD56E94096E8F192 /* SnippetStarterPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB898AFCB1C301931F6D9F81 /* SnippetStarterPack.swift */; };
 		27F0647DFDE5A749FC675716 /* TalixTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E818AF7A272A7D7275FED20C /* TalixTimer.swift */; };
 		28C2893261F6039846046644 /* PortsQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42440DE3B341D63A6776638 /* PortsQuery.swift */; };
 		295AA3F6F9E005C57698201B /* ExtensionListPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA6DDE1843D16C172AAA1002 /* ExtensionListPanel.swift */; };
@@ -1564,6 +1565,7 @@
 		EAC662BDA6856590DCF96B94 /* AIChatState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatState.swift; sourceTree = "<group>"; };
 		EB0E63A5CDC274306555E3A8 /* JSONValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONValue.swift; sourceTree = "<group>"; };
 		EB76FDBFE1E306C2A5B1A29B /* Memo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memo.swift; sourceTree = "<group>"; };
+		EB898AFCB1C301931F6D9F81 /* SnippetStarterPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetStarterPack.swift; sourceTree = "<group>"; };
 		EBBB8484C670351136F3C535 /* CalcTimestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalcTimestamp.swift; sourceTree = "<group>"; };
 		EBD2273796C5CEA4E63E9E5E /* WindowZOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowZOrder.swift; sourceTree = "<group>"; };
 		EBD42AFBAB42DB5BF5FE1BCE /* CameraSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSession.swift; sourceTree = "<group>"; };
@@ -3157,6 +3159,7 @@
 				BE3331A5E8F892CC257AD31B /* SnippetMarkdownSerializer.swift */,
 				7BFFB1471D30C915BBC5DCBA /* SnippetRepository.swift */,
 				375734577C888260A8023181 /* SnippetsStore.swift */,
+				EB898AFCB1C301931F6D9F81 /* SnippetStarterPack.swift */,
 				F58E564E6181EB15497E51CD /* SnippetTemplateEngine.swift */,
 			);
 			path = Model;
@@ -4561,6 +4564,7 @@
 				2F38A89B3481A4C9A13F13A8 /* SnippetKeywordPolicy.swift in Sources */,
 				58D369977E702AD66F070913 /* SnippetMarkdownSerializer.swift in Sources */,
 				175DAAED3859A54861D8CEBC /* SnippetRepository.swift in Sources */,
+				27C534BDBD56E94096E8F192 /* SnippetStarterPack.swift in Sources */,
 				3B02D6CE68E0E488955A19B5 /* SnippetTemplateEngine.swift in Sources */,
 				57784875AA132F7756399363 /* SnippetsListView.swift in Sources */,
 				96BC636877D935C5EB20BF7F /* SnippetsScreen.swift in Sources */,

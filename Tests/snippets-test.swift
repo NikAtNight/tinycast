@@ -14,6 +14,7 @@ struct SnippetsTests {
         _ = NSApplication.shared
         testIdentityAndRevision()
         testRaycastImport()
+        testStarterPack()
         try testMarkdownCodec()
         try testRepositoryStorage()
         try await testRepositoryConcurrency()
@@ -45,6 +46,32 @@ struct SnippetsTests {
         check(
             "source revision changes with source content",
             SnippetSourceRevision(content: "same") != SnippetSourceRevision(content: "same\n"))
+    }
+
+    private static func testStarterPack() {
+        let pack = SnippetStarterPack.prompts
+        check("the starter pack is non-empty and uniquely named",
+            !pack.isEmpty && Set(pack.map { $0.name.lowercased() }).count == pack.count)
+        check("every starter prompt is in the AI prompts group",
+            pack.allSatisfy { $0.group == SnippetStarterPack.group })
+        check("no starter prompt claims a keyword", pack.allSatisfy { $0.keyword == nil })
+        check("the whole pack is missing from an empty library",
+            SnippetStarterPack.missing(from: []).count == pack.count)
+        let existing = [Snippet(name: pack[0].name.uppercased(), text: "mine")]
+        check("a prompt already named in the library is skipped, whatever its case",
+            SnippetStarterPack.missing(from: existing).map(\.name) == pack.dropFirst().map(\.name))
+        check("adding everything leaves nothing missing", SnippetStarterPack.missing(from: pack).isEmpty)
+        let arguments = pack.flatMap { SnippetTemplateEngine.declaredArguments(in: $0.text) }
+        check(
+            "starter prompts declare the arguments they mean to",
+            arguments.map(\.name) == ["Task", "Length"]
+                && arguments.last?.options == ["3 bullets", "one paragraph", "one sentence"])
+        for prompt in pack {
+            let parsed = try? SnippetMarkdownSerializer.parse(
+                content: SnippetMarkdownSerializer.serialize(prompt),
+                fileURL: URL(fileURLWithPath: "/tmp/starter.md"))
+            check("\(prompt.name) round-trips through Markdown", parsed == prompt)
+        }
     }
 
     private static func testRaycastImport() {
@@ -186,6 +213,36 @@ struct SnippetsTests {
             fileURL: fileURL)
         expectParseError(
             "the renamed show_hud key is rejected", content: "---\nshow_hud: true\n---\n", fileURL: fileURL)
+
+        let tagged = Snippet(
+            name: "Review", text: "Body", apps: ["com.anthropic.claudefordesktop", "dev.zed.Zed"],
+            group: "AI \"prompts\"")
+        let taggedSource = SnippetMarkdownSerializer.serialize(tagged)
+        check(
+            "apps and group serialize after the other keys",
+            taggedSource.contains(
+                "show_confirmation: false\napps: [\"com.anthropic.claudefordesktop\", \"dev.zed.Zed\"]\n"
+                    + "group: \"AI \\\"prompts\\\"\"\n---\n"))
+        let taggedParsed = try SnippetMarkdownSerializer.parse(content: taggedSource, fileURL: fileURL)
+        check("apps and group round-trip", taggedParsed == tagged)
+        check(
+            "an untagged snippet writes neither key",
+            !SnippetMarkdownSerializer.serialize(Snippet(name: "Plain", text: "x")).contains("apps:")
+                && !SnippetMarkdownSerializer.serialize(Snippet(name: "Plain", text: "x")).contains("group:"))
+        let loose = try SnippetMarkdownSerializer.parse(
+            content: "---\napps: [ \"a\",\"b, c\" , \" \" ]\ngroup: \"  \"\n---\n", fileURL: fileURL)
+        check("list spacing is free, commas inside quotes stay, blanks drop", loose.apps == ["a", "b, c"])
+        check("a blank group reads as none", loose.group == nil)
+        let emptyList = try SnippetMarkdownSerializer.parse(content: "---\napps: []\n---\n", fileURL: fileURL)
+        check("an empty list parses", emptyList.apps.isEmpty)
+        check("isOffered ignores bundle ID case", tagged.isOffered(in: "DEV.ZED.zed") && !tagged.isOffered(in: "x"))
+        expectParseError("a bare apps value is rejected", content: "---\napps: \"a\"\n---\n", fileURL: fileURL)
+        expectParseError("unquoted list items are rejected", content: "---\napps: [a]\n---\n", fileURL: fileURL)
+        expectParseError(
+            "a trailing list comma is rejected", content: "---\napps: [\"a\",]\n---\n", fileURL: fileURL)
+        expectParseError(
+            "list items need a comma between them", content: "---\napps: [\"a\" \"b\"]\n---\n",
+            fileURL: fileURL)
     }
 
     private static func testRepositoryStorage() throws {

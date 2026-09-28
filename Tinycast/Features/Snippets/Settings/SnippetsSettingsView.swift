@@ -7,6 +7,7 @@ struct SnippetsSettingsView: View {
 
     @State private var editor: SnippetEditRequest?
     @State private var pendingDeletion: StoredSnippet?
+    @State private var starterStatus: String?
 
     var body: some View {
         @Bindable var settings = settings
@@ -93,6 +94,15 @@ struct SnippetsSettingsView: View {
             }
 
             LabeledContent {
+                Button("Add", action: addStarterPrompts)
+                    .disabled(missingStarterPrompts.isEmpty)
+                    .accessibilityHint("Adds editable AI prompt snippets to your library.")
+            } label: {
+                SettingsRowTitle(.snippetsLibrary, "Starter AI Prompts")
+                Text(starterStatus ?? starterSubtitle)
+            }
+
+            LabeledContent {
                 Button("Open Folder", action: core.snippetCoordinator.revealSnippetsInFinder)
                     .accessibilityHint("Reveals this Tinycast channel’s snippets folder in Finder.")
             } label: {
@@ -164,6 +174,31 @@ struct SnippetsSettingsView: View {
             "\(first.fileURL.lastPathComponent): \(first.message) Plus \(snippetsStore.issues.count - 1) more."
     }
 
+    private var missingStarterPrompts: [Snippet] {
+        SnippetStarterPack.missing(from: snippetsStore.snippets.map(\.snippet))
+    }
+
+    private var starterSubtitle: String {
+        let missing = missingStarterPrompts.count
+        if missing == 0 { return "All added. Edit or delete them like any snippet." }
+        if missing == SnippetStarterPack.prompts.count {
+            return "\(missing) prompts for code, writing and tickets, in the AI prompts group."
+        }
+        return "\(missing) not in your library yet."
+    }
+
+    private func addStarterPrompts() {
+        let missing = missingStarterPrompts
+        Task {
+            do {
+                let added = try await snippetsStore.importSnippets(missing)
+                starterStatus = "Added \(added.count) prompts."
+            } catch {
+                starterStatus = error.localizedDescription
+            }
+        }
+    }
+
     private func delete(_ record: StoredSnippet) {
         Task { try? await snippetsStore.delete(id: record.id) }
     }
@@ -225,6 +260,9 @@ private struct SnippetEditorPanel: View {
     @State private var selection: TextSelection?
     @State private var isEnabled: Bool
     @State private var showsConfirmation: Bool
+    @State private var apps: [String]
+    @State private var group: String
+    @State private var pickingApp = false
     @State private var errorMessage: String?
     @State private var isSaving = false
 
@@ -236,6 +274,8 @@ private struct SnippetEditorPanel: View {
         _text = State(initialValue: snippet?.text ?? "")
         _isEnabled = State(initialValue: snippet?.isEnabled ?? true)
         _showsConfirmation = State(initialValue: snippet?.showsConfirmation ?? false)
+        _apps = State(initialValue: snippet?.apps ?? [])
+        _group = State(initialValue: snippet?.group ?? "")
     }
 
     var body: some View {
@@ -250,6 +290,13 @@ private struct SnippetEditorPanel: View {
                 hint: "Optional. Type this to expand the snippet.")
 
             templateEditor
+
+            HStack(alignment: .top, spacing: Theme.Spacing.xl) {
+                field(
+                    title: "Group", placeholder: "Optional, for example AI prompts", text: $group,
+                    hint: "Optional. Groups related snippets together.")
+                appsField
+            }
 
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 optionToggle(
@@ -281,6 +328,30 @@ private struct SnippetEditorPanel: View {
         .padding(Theme.Spacing.dialogInset)
         .frame(width: Theme.Size.editorSheetWidth)
         .settingsEditorPanelSurface()
+    }
+
+    /// Offered first when the palette opens over one of these apps; expansion still works anywhere.
+    private var appsField: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            Text("Apps")
+                .font(.callout.weight(.medium))
+            ScrollView(.horizontal) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    ForEach(apps, id: \.self) { bundleID in
+                        SnippetAppChip(bundleID: bundleID) { apps.removeAll { $0 == bundleID } }
+                    }
+                    Button(apps.isEmpty ? "Add App…" : "Add…") { pickingApp = true }
+                        .popover(isPresented: $pickingApp, arrowEdge: .bottom) {
+                            AppPickerPopover(excluded: Set(apps)) { bundleID in
+                                if let bundleID { apps.append(bundleID) }
+                                pickingApp = false
+                            }
+                        }
+                        .accessibilityHint("Offers this snippet first in the chosen app.")
+                }
+            }
+            .scrollIndicators(.never)
+        }
     }
 
     private var templateEditor: some View {
@@ -379,7 +450,9 @@ private struct SnippetEditorPanel: View {
             text: text,
             keyword: trimmedOrNil(keyword),
             isEnabled: isEnabled,
-            showsConfirmation: showsConfirmation)
+            showsConfirmation: showsConfirmation,
+            apps: apps,
+            group: trimmedOrNil(group))
     }
 
     private func trimmedOrNil(_ value: String) -> String? {
@@ -405,5 +478,29 @@ private struct SnippetEditorPanel: View {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+}
+
+/// One chosen app in the editor; only the bundle ID is stored, so name and icon resolve on the fly.
+private struct SnippetAppChip: View {
+    let bundleID: String
+    let onRemove: () -> Void
+
+    @Environment(AppIndex.self) private var appIndex
+
+    var body: some View {
+        let (name, icon) = AppPresentation.resolve(bundleID: bundleID, in: appIndex)
+        HStack(spacing: Theme.Spacing.xs) {
+            Image(nsImage: icon).resizable().frame(width: 16, height: 16)
+            Text(name).lineLimit(1)
+            Button(action: onRemove) {
+                Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Stop offering in \(name)")
+        }
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xxs)
+        .background(Capsule().fill(Theme.Colors.cardFill))
     }
 }

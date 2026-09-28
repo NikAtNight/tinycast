@@ -421,10 +421,18 @@ per-item reset in its Actions menu, and users can clear all learned ranking in G
 
 ## The empty list
 
-Favorites, then Recent, then Suggestions, then one section per kind. Each kind section is sorted by the
+Favorites, then For <app>, then Recent, then Suggestions, then one section per kind. Each kind section is sorted by the
 tiebreak, so what the user opens comes first and never-used entries still read alphabetically below
 it. The sort runs within each contiguous kind run of the publication order,
 so the sectioned view stays 1:1 with the flat selection.
+
+### For the app behind the palette
+
+`AppIndex.orderedResults(…, forApp:)` takes the bundle ID of `PaletteState.pasteTarget`, the app the
+palette opened over. Up to five non-favorite entries with that ID in `AppEntry.offeredInApps` lead
+the list in a **For <app>** section, in usage order. Today only snippets set it (their `apps`
+frontmatter, see [snippets.md](snippets.md#snippets-for-an-app)). The ID is part of the results key,
+and nothing in the section repeats in Recent, Suggestions or its kind section.
 
 ### Recent
 
@@ -451,8 +459,8 @@ never suggested, however often they are opened:
    index, so it is never offered.
 
 A recent or suggested entry leaves its kind section below, so no row appears twice.
-`AppIndex.Results` carries `favoriteCount`, `recentCount` and `suggestionCount`, which `LauncherScreen`
-hands to `LauncherList` for its three leading headers. **Show suggestions** in Settings › General › Search turns the section off
+`AppIndex.Results` carries `favoriteCount`, `forAppCount`, `recentCount` and `suggestionCount`, which
+`LauncherScreen` hands to `LauncherList` for its leading headers. **Show suggestions** in Settings › General › Search turns the section off
 (`launcherShowsSuggestions`, carried by a settings backup). `HotKeyManager.revision` is part of
 `AppIndex`'s results key, because binding a shortcut takes an entry out of the section.
 

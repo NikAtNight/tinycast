@@ -9,9 +9,18 @@ struct SnippetsScreen: PaletteScreen {
     private var metrics: InterfaceMetrics { core.settings.interfaceSize.metrics }
     let openActions: () -> Void
 
+    /// The app the list is narrowed to; nil when Search Snippets opened it, or nothing sits behind.
+    private var app: PasteTarget? {
+        core.snippetCoordinator.showsOnlyAppSnippets ? vm.pasteTarget : nil
+    }
+
     /// A disabled snippet is off everywhere, so the browser lists exactly what the launcher does.
     var rows: [StoredSnippet] {
-        let enabled = store.snippets.filter { $0.snippet.isEnabled }
+        var enabled = store.snippets.filter { $0.snippet.isEnabled }
+        if core.snippetCoordinator.showsOnlyAppSnippets {
+            let bundleID = app?.bundleID
+            enabled = enabled.filter { record in bundleID.map(record.snippet.isOffered) ?? false }
+        }
         let query = vm.query.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else { return enabled }
         return enabled.filter { record in
@@ -72,6 +81,9 @@ struct SnippetsScreen: PaletteScreen {
     /// An empty library and an over-narrow filter are different problems with different answers.
     private var emptyMessage: String {
         if store.state == .loading { return "Loading snippets…" }
+        if core.snippetCoordinator.showsOnlyAppSnippets, vm.query.isEmpty {
+            return "No snippets for \(app?.name ?? "this app") yet"
+        }
         return store.snippets.contains(where: { $0.snippet.isEnabled })
             ? "No matching snippets" : "No snippets yet"
     }
@@ -85,7 +97,8 @@ enum SnippetActionsMenu {
             items: [
                 PopoverMenuItem(title: "Paste Snippet", systemImage: "text.quote", shortcut: "↵") {
                     core.snippetCoordinator.expandSnippetFromPalette(id: record.id)
-                },
+                }
+            ] + extraItems(id: record.id, core: core) + [
                 PopoverMenuItem(title: "Edit Snippet", systemImage: "pencil", startsSection: true) {
                     core.paletteCoordinator.hidePalette(restoreFocus: false)
                     core.snippetCoordinator.editSnippet(record)
@@ -98,5 +111,21 @@ enum SnippetActionsMenu {
                     core.snippetCoordinator.showSnippetInFinder(record)
                 }
             ])
+    }
+
+    /// Copy and Ask AI, shared with a snippet's launcher row so both menus offer the same things.
+    static func extraItems(id: StoredSnippet.ID, core: AppCore) -> [PopoverMenuItem] {
+        var items = [
+            PopoverMenuItem(title: "Copy Snippet", systemImage: "doc.on.doc") {
+                core.snippetCoordinator.copySnippet(id: id)
+            }
+        ]
+        if core.settings.aiEnabled {
+            items.append(
+                PopoverMenuItem(title: "Ask AI", systemImage: "sparkles") {
+                    core.snippetCoordinator.askAI(id: id)
+                })
+        }
+        return items
     }
 }
